@@ -17,6 +17,7 @@ class C_GLEditor : public QGLWidget
 		void paintGL();
 		void resizeGL(int w, int h);
 		void mousePressEvent(QMouseEvent* e);
+		void mouseMoveEvent(QMouseEvent* e);
 	public:
 		C_GLEditor(QWidget* parent=NULL);
 		~C_GLEditor() {}

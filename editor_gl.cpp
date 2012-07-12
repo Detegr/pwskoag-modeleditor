@@ -62,6 +62,16 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 	emit S_MousePressed(x,y);
 	updateGL();
 }
+void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
+{
+	if(e->buttons() & Qt::LeftButton)
+	{
+		float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f);
+		float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f);
+		m_Points.back()=std::make_pair(x,y);
+		updateGL();
+	}
+}
 
 void C_GLEditor::M_Center()
 {

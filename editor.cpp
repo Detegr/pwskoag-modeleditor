@@ -6,13 +6,25 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	QObject::connect(m_Center, SIGNAL(clicked()), this, SLOT(S_Center()));
 	m_Save = new QPushButton(tr("Save"), this);
 	QObject::connect(m_Save, SIGNAL(clicked()), this, SLOT(S_Save()));
+	m_Insert = new QPushButton(tr("Insert"), this);
+	m_Insert->setDown(true);
+	QObject::connect(m_Insert, SIGNAL(clicked()), this, SLOT(S_SetInsertMode()));
+	m_Edit = new QPushButton(tr("Edit"), this);
+	QObject::connect(m_Edit, SIGNAL(clicked()), this, SLOT(S_SetEditMode()));
 	m_List = new QTreeView(this);
 	m_Splitter = new QSplitter(this);
 	m_Editor = new C_GLEditor(this);
 	QObject::connect(m_Editor, SIGNAL(S_MousePressed(float, float)), this, SLOT(S_AddToList(float, float)));
 
+	QFrame* frame = new QFrame(this);
+	QHBoxLayout *editmode = new QHBoxLayout(this);
+	editmode->addWidget(m_Insert);
+	editmode->addWidget(m_Edit);
+	frame->setLayout(editmode);
+	frame->setFixedWidth(150);
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	QVBoxLayout *vb = new QVBoxLayout();
+	vb->addWidget(frame);
 	m_Splitter->setOrientation(Qt::Vertical);
 	m_Splitter->addWidget(m_List);
 	m_List->setHeaderHidden(true);
@@ -39,7 +51,7 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	layout->addWidget(m_Editor);
 
 	setLayout(layout);
-	setMinimumSize(640,480);
+	setMinimumSize(800,600);
 }
 
 void C_Editor::S_Center()
@@ -53,11 +65,39 @@ void C_Editor::S_Save()
 }
 
 #include <iostream>
+#include <sstream>
 void C_Editor::S_UpdateList(QStandardItem* i)
 {
 	std::cout << i->parent()->row() << " " << i->row() << " " << i->column() << std::endl;
-	std::cout << i->text().toStdString() << std::endl;
-	std::cout << i->data().toFloat() << std::endl;
+	const std::string& newdatastr=i->text().toStdString();
+	float olddata=i->data().toFloat();
+	std::stringstream ss;
+	ss << newdatastr;
+	float newdata;
+	ss >> newdata;
+	if(newdata>=-1.0f && newdata<=1.0f && newdatastr.find(',') == std::string::npos)
+	{
+		i->setData(newdata);
+		const std::pair<float,float>& oldp=m_Editor->m_Points[i->row()];
+		if(i->column()==0)
+		{
+			m_Editor->m_Points[i->row()]=std::make_pair(newdata, oldp.second);
+		}
+		else
+		{
+			m_Editor->m_Points[i->row()]=std::make_pair(oldp.first, newdata);
+		}
+		m_Editor->updateGL();
+	}
+	else
+	{
+		std::stringstream ss;
+		ss << olddata;
+		std::string oldstr;
+		ss >> oldstr;
+		QString oldqstr(oldstr.c_str());
+		i->setText(oldqstr);
+	}
 }
 
 void C_Editor::S_AddToList(float x, float y)
@@ -71,4 +111,17 @@ void C_Editor::S_AddToList(float x, float y)
 	iy->setData(QVariant(y));
 	m_Root->appendRow(QList<QStandardItem*>() << ix << iy);
 	m_Editor->m_Points.push_back(std::make_pair(x,y));
+}
+
+void C_Editor::S_SetInsertMode()
+{
+	m_Insert->setDown(true);
+	m_Edit->setDown(false);
+	m_Mode=Insert;
+}
+void C_Editor::S_SetEditMode()
+{
+	m_Insert->setDown(false);
+	m_Edit->setDown(true);
+	m_Mode=Edit;
 }
