@@ -4,11 +4,14 @@
 
 class C_GLEditor : public QGLWidget
 {
+	friend class C_Editor;
 	Q_OBJECT
 	private:
-		static const unsigned m_GridSize=12;
+		std::vector<std::pair<float, float> > m_Points;
+		static const unsigned m_GridSize=20;
 		float m_Grid[m_GridSize];
-		std::vector<std::pair<float,float> > m_Points;
+	signals:
+		void S_MousePressed(float,float);
 	protected:
 		void initializeGL();
 		void paintGL();
@@ -17,6 +20,7 @@ class C_GLEditor : public QGLWidget
 	public:
 		C_GLEditor(QWidget* parent=NULL);
 		~C_GLEditor() {}
+		float M_RoundToPrecision(float num, unsigned precision=2);
 		void M_Center();
 		void M_Dump() const;
 };

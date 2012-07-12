@@ -57,7 +57,9 @@ void C_GLEditor::paintGL()
 
 void C_GLEditor::mousePressEvent(QMouseEvent* e)
 {
-	m_Points.push_back(std::make_pair(((float)e->pos().x()/(this->width()/2)-1.0f), -((float)e->pos().y()/(this->height()/2)-1.0f)));
+	float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f);
+	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f);
+	emit S_MousePressed(x,y);
 	updateGL();
 }
 
@@ -87,4 +89,10 @@ void C_GLEditor::M_Dump() const
 	{
 		std::cout << it->first << "\n" << it->second << std::endl;
 	}
+}
+
+float C_GLEditor::M_RoundToPrecision(float num, unsigned precision)
+{
+	unsigned long long m = pow(10, precision);
+	return floor((num * m)+0.5)/m;
 }
