@@ -78,14 +78,14 @@ void C_Editor::S_UpdateList(QStandardItem* i)
 	if(newdata>=-1.0f && newdata<=1.0f && newdatastr.find(',') == std::string::npos)
 	{
 		i->setData(newdata);
-		const std::pair<float,float>& oldp=m_Editor->m_Points[i->row()];
+		std::pair<float,float> oldp=m_Editor->m_Polygon.m_Verts[i->row()].M_Pos();
 		if(i->column()==0)
 		{
-			m_Editor->m_Points[i->row()]=std::make_pair(newdata, oldp.second);
+			m_Editor->m_Polygon.m_Verts[i->row()].M_SetPos(newdata, oldp.second);
 		}
 		else
 		{
-			m_Editor->m_Points[i->row()]=std::make_pair(oldp.first, newdata);
+			m_Editor->m_Polygon.m_Verts[i->row()].M_SetPos(oldp.first, newdata);
 		}
 		m_Editor->updateGL();
 	}
@@ -110,18 +110,18 @@ void C_Editor::S_AddToList(float x, float y)
 	QStandardItem* iy = new QStandardItem(s);
 	iy->setData(QVariant(y));
 	m_Root->appendRow(QList<QStandardItem*>() << ix << iy);
-	m_Editor->m_Points.push_back(std::make_pair(x,y));
+	m_Editor->m_Polygon.M_Add(C_Vertex(x,y));
 }
 
 void C_Editor::S_SetInsertMode()
 {
 	m_Insert->setDown(true);
 	m_Edit->setDown(false);
-	m_Mode=Insert;
+	m_Editor->m_Mode=C_GLEditor::Insert;
 }
 void C_Editor::S_SetEditMode()
 {
 	m_Insert->setDown(false);
 	m_Edit->setDown(true);
-	m_Mode=Edit;
+	m_Editor->m_Mode=C_GLEditor::Edit;
 }

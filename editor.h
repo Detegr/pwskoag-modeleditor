@@ -5,10 +5,6 @@ class C_Editor : public QWidget
 {
 	Q_OBJECT
 	private:
-		enum Mode
-		{
-			Insert, Edit
-		};
 		QStandardItemModel* m_Model;
 		QStandardItem* m_Root;
 		QHeaderView* m_HeaderView;
@@ -19,7 +15,6 @@ class C_Editor : public QWidget
 		QSplitter* m_Splitter;
 		QTreeView* m_List;
 		C_GLEditor* m_Editor;
-		Mode m_Mode;
 	private slots:
 		void S_Center();
 		void S_Save();
