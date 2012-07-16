@@ -17,7 +17,9 @@ class C_GLEditor : public QGLWidget
 		static const unsigned m_GridSize=20;
 		float m_Grid[m_GridSize];
 		std::pair<float, float> m_LastClick;
+		std::pair<float, float> m_LastMousePos;
 		bool m_Drag;
+		bool m_Move;
 		float m_DragPoints[4];
 	signals:
 		void S_MousePressed(float,float);

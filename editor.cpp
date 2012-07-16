@@ -110,7 +110,7 @@ void C_Editor::S_AddToList(float x, float y)
 	QStandardItem* iy = new QStandardItem(s);
 	iy->setData(QVariant(y));
 	m_Root->appendRow(QList<QStandardItem*>() << ix << iy);
-	m_Editor->m_Polygon.M_Add(C_Vertex(x,y));
+	m_Editor->m_Polygon.M_Add(C_Vertex(x,y, QColor::fromRgbF(1.0f, 0.0f, 0.0f, 1.0f)));
 }
 
 void C_Editor::S_SetInsertMode()

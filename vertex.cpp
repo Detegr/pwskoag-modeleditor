@@ -1,14 +1,10 @@
 #include "vertex.h"
 
-C_Vertex::C_Vertex() : x(0), y(0), r(1.0), g(1.0), b(1.0) {}
-C_Vertex::C_Vertex(float newx, float newy) : x(newx), y(newy), r(1.0), g(1.0), b(1.0) {}
-C_Vertex::C_Vertex(float newx, float newy, float newr, float newg, float newb) :
-	x(newx), y(newy), r(newr), g(newg), b(newb) {}
+C_Vertex::C_Vertex() : x(0), y(0), m_Color(), m_Selected(false) {}
+C_Vertex::C_Vertex(float newx, float newy) : x(newx), y(newy), m_Color(), m_Selected(false) {}
+C_Vertex::C_Vertex(float newx, float newy, const QColor& c) :
+	x(newx), y(newy), m_Color(c), m_Selected(false) {}
 
-void C_Vertex::M_SetColor(float r, float g, float b)
-{
-	this->r=r; this->g=g; this->b=b;
-}
 void C_Vertex::M_SetPos(float x, float y)
 {
 	this->x=x; this->y=y;
