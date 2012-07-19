@@ -118,10 +118,12 @@ void C_Editor::S_SetInsertMode()
 	m_Insert->setDown(true);
 	m_Edit->setDown(false);
 	m_Editor->m_Mode=C_GLEditor::Insert;
+	m_Editor->setMouseTracking(false);
 }
 void C_Editor::S_SetEditMode()
 {
 	m_Insert->setDown(false);
 	m_Edit->setDown(true);
 	m_Editor->m_Mode=C_GLEditor::Edit;
+	m_Editor->setMouseTracking(true);
 }
