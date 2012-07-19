@@ -37,6 +37,7 @@ void C_GLEditor::paintGL()
 	glBegin(GL_LINES);
 	for(unsigned i=0; i<m_GridSize-1; ++i)
 	{
+		i==(m_GridSize-1)/2?glColor4f(0.0f, 0.2f, 1.0f,1.0f):glColor4f(0.85f, 0.85f, 0.85f, 1.0f);
 		glVertex2f(-1.0f, m_Grid[i]);
 		glVertex2f(1.0f, m_Grid[i]);
 		glVertex2f(m_Grid[i], -1.0f);
@@ -185,9 +186,9 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 			if(M_PointInsideBox(x,y, it->M_Pos().first-m_MouseOverPrecision, it->M_Pos().second-m_MouseOverPrecision,
 									 it->M_Pos().first+m_MouseOverPrecision, it->M_Pos().second+m_MouseOverPrecision))
 			{
-				it->M_SetColor(QColor::fromRgbF(1.0f, 0.0f, 1.0f));
+				it->M_SetColor(QColor::fromRgbF(1.0f, 0.0f, 1.0f, 1.0f));
 			}
-			else it->M_SetColor(QColor::fromRgbF(1.0f, 0.0f, 0.0f));
+			else it->M_SetColor(QColor::fromRgbF(1.0f, 0.0f, 0.0f, 1.0f));
 		}
 	}
 	updateGL();
