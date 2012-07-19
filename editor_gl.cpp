@@ -93,6 +93,10 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 		emit S_MousePressed(x,y);
 		m_Drag=false;
 		m_SelectedPoints=1;
+		for(std::vector<C_Vertex>::iterator it=m_Polygon.m_Verts.begin(); it!=m_Polygon.m_Verts.end(); ++it)
+		{
+			it->M_SetSelection(false);
+		}
 		m_Polygon.m_Verts.back().M_SetSelection(true);
 	}
 	else
@@ -186,7 +190,7 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 			if(M_PointInsideBox(x,y, it->M_Pos().first-m_MouseOverPrecision, it->M_Pos().second-m_MouseOverPrecision,
 									 it->M_Pos().first+m_MouseOverPrecision, it->M_Pos().second+m_MouseOverPrecision))
 			{
-				it->M_SetColor(QColor::fromRgbF(1.0f, 0.0f, 1.0f, 1.0f));
+				it->M_SetColor(QColor::fromRgbF(0.2f, 0.5f, 1.0f, 1.0f));
 			}
 			else it->M_SetColor(QColor::fromRgbF(1.0f, 0.0f, 0.0f, 1.0f));
 		}
