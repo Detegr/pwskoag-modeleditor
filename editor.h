@@ -18,7 +18,7 @@ class C_Editor : public QWidget
 	private slots:
 		void S_Center();
 		void S_Save();
-		void S_AddToList(float, float);
+		void S_AddToList(QStandardItem*, float, float);
 		void S_UpdateList(QStandardItem* i);
 		void S_SetInsertMode();
 		void S_SetEditMode();

@@ -1,7 +1,8 @@
 #include "editor_gl.h"
 #include <iostream>
 
-C_GLEditor::C_GLEditor(QWidget* parent) : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
+C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
+	QGLWidget(QGLFormat(QGL::SampleBuffers), parent), m_Polygon(root)
 {
 	float f=2.0f/m_GridSize;
 	for(unsigned i=0; i<m_GridSize-1; ++i, f+=(2.0f/m_GridSize))
@@ -88,7 +89,7 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f);
 	if(m_Mode==Insert)
 	{
-		emit S_MousePressed(x,y);
+		emit S_MousePressed(m_Polygon.m_Root,x,y);
 		m_Drag=false;
 	}
 	else

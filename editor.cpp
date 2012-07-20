@@ -13,8 +13,6 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	QObject::connect(m_Edit, SIGNAL(clicked()), this, SLOT(S_SetEditMode()));
 	m_List = new QTreeView(this);
 	m_Splitter = new QSplitter(this);
-	m_Editor = new C_GLEditor(this);
-	QObject::connect(m_Editor, SIGNAL(S_MousePressed(float, float)), this, SLOT(S_AddToList(float, float)));
 
 	QFrame* frame = new QFrame(this);
 	QHBoxLayout *editmode = new QHBoxLayout(this);
@@ -35,6 +33,9 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	m_Model->appendRow(m_Root);
 	m_List->setModel(m_Model);
 	vb->setAlignment(Qt::AlignTop);
+
+	m_Editor = new C_GLEditor(this, m_Root);
+	QObject::connect(m_Editor, SIGNAL(S_MousePressed(QStandardItem*, float, float)), this, SLOT(S_AddToList(QStandardItem*, float, float)));
 
 	m_Save->setFixedWidth(160);
 	m_Center->setFixedWidth(160);
@@ -68,7 +69,6 @@ void C_Editor::S_Save()
 #include <sstream>
 void C_Editor::S_UpdateList(QStandardItem* i)
 {
-	std::cout << i->parent()->row() << " " << i->row() << " " << i->column() << std::endl;
 	const std::string& newdatastr=i->text().toStdString();
 	float olddata=i->data().toFloat();
 	std::stringstream ss;
@@ -100,7 +100,7 @@ void C_Editor::S_UpdateList(QStandardItem* i)
 	}
 }
 
-void C_Editor::S_AddToList(float x, float y)
+void C_Editor::S_AddToList(QStandardItem* obj, float x, float y)
 {
 	QString f,s;
 	f.setNum(x);
@@ -109,7 +109,7 @@ void C_Editor::S_AddToList(float x, float y)
 	ix->setData(QVariant(x));
 	QStandardItem* iy = new QStandardItem(s);
 	iy->setData(QVariant(y));
-	m_Root->appendRow(QList<QStandardItem*>() << ix << iy);
+	obj->appendRow(QList<QStandardItem*>() << ix << iy);
 	m_Editor->m_Polygon.M_Add(C_Vertex(x,y, QColor::fromRgbF(1.0f, 0.0f, 0.0f, 1.0f)));
 }
 

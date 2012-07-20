@@ -12,8 +12,8 @@ class C_GLEditor : public QGLWidget
 		{
 			Insert, Edit
 		};
-		Mode m_Mode;
 		C_Polygon m_Polygon;
+		Mode m_Mode;
 		static const unsigned m_GridSize=20;
 		float m_Grid[m_GridSize];
 		std::pair<float, float> m_LastClick;
@@ -22,7 +22,7 @@ class C_GLEditor : public QGLWidget
 		bool m_Move;
 		float m_DragPoints[4];
 	signals:
-		void S_MousePressed(float,float);
+		void S_MousePressed(QStandardItem*, float,float);
 	protected:
 		void initializeGL();
 		void paintGL();
@@ -31,7 +31,7 @@ class C_GLEditor : public QGLWidget
 		void mouseReleaseEvent(QMouseEvent* e);
 		void mouseMoveEvent(QMouseEvent* e);
 	public:
-		C_GLEditor(QWidget* parent=NULL);
+		C_GLEditor(QWidget* parent, QStandardItem* root);
 		~C_GLEditor() {}
 		float M_RoundToPrecision(float num, unsigned precision=2);
 		void M_Center();
