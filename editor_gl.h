@@ -14,6 +14,7 @@ class C_GLEditor : public QGLWidget
 			Insert, Edit
 		};
 		C_Polygon m_Polygon;
+		C_Polygon* m_ActivePoly;
 		Mode m_Mode;
 		static const unsigned m_GridSize=20;
 		float m_Grid[m_GridSize];
@@ -23,6 +24,12 @@ class C_GLEditor : public QGLWidget
 		unsigned m_SelectedPoints;
 		C_Vertex* m_Single;
 		bool m_Drag;
+
+		void M_PaintGrid();
+		void M_PaintPolygon(const C_Polygon& p);
+		void M_PaintPoints(const C_Polygon& p);
+		void M_PaintDrag();
+
 	signals:
 		void S_MousePressed(QStandardItem*, float,float);
 	protected:

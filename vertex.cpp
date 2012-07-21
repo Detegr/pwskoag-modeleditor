@@ -1,9 +1,8 @@
 #include "vertex.h"
 
-C_Vertex::C_Vertex() : x(0), y(0), m_Color(), m_Selected(false) {}
-C_Vertex::C_Vertex(float newx, float newy) : x(newx), y(newy), m_Color(), m_Selected(false) {}
+C_Vertex::C_Vertex() : x(0), y(0), m_Color(QColor::fromRgbF(0.0f, 0.0f, 0.0f, 1.0f)), m_Selected(false), m_Hovering(false) {}
 C_Vertex::C_Vertex(float newx, float newy, const QColor& c) :
-	x(newx), y(newy), m_Color(c), m_Selected(false) {}
+	x(newx), y(newy), m_Color(c), m_Selected(false), m_Hovering(false) {}
 
 void C_Vertex::M_SetColor(const QColor& c)
 {

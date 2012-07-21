@@ -1,4 +1,6 @@
 #include "editor.h"
+#include <iostream>
+#include <sstream>
 
 C_Editor::C_Editor() : m_Editor(NULL)
 {
@@ -65,8 +67,6 @@ void C_Editor::S_Save()
 	m_Editor->M_Dump();
 }
 
-#include <iostream>
-#include <sstream>
 void C_Editor::S_UpdateList(QStandardItem* i)
 {
 	const std::string& newdatastr=i->text().toStdString();
@@ -81,7 +81,7 @@ void C_Editor::S_UpdateList(QStandardItem* i)
 		std::pair<float,float> oldp=m_Editor->m_Polygon.M_Vertex(i->row()).M_Pos();
 		if(i->column()==0)
 		{
-			m_Editor->m_Polygon.m_Vertex(i->row()).M_SetPos(newdata, oldp.second);
+			m_Editor->m_Polygon.M_Vertex(i->row()).M_SetPos(newdata, oldp.second);
 		}
 		else
 		{
@@ -110,7 +110,7 @@ void C_Editor::S_AddToList(QStandardItem* obj, float x, float y)
 	QStandardItem* iy = new QStandardItem(s);
 	iy->setData(QVariant(y));
 	obj->appendRow(QList<QStandardItem*>() << ix << iy);
-	m_Editor->m_Polygon.M_Add(C_Vertex(x,y, QColor::fromRgbF(1.0f, 0.0f, 0.0f, 1.0f)));
+	m_Editor->m_Polygon.M_Add(x,y);
 }
 
 void C_Editor::S_SetInsertMode()
