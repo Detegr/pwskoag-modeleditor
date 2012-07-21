@@ -8,6 +8,7 @@ class C_GLEditor : public QGLWidget
 	friend class C_Editor;
 	Q_OBJECT
 	private:
+		static const float m_MouseOverPrecision=0.02f;
 		enum Mode
 		{
 			Insert, Edit
@@ -18,9 +19,10 @@ class C_GLEditor : public QGLWidget
 		float m_Grid[m_GridSize];
 		std::pair<float, float> m_LastClick;
 		std::pair<float, float> m_LastMousePos;
-		bool m_Drag;
-		bool m_Move;
 		float m_DragPoints[4];
+		unsigned m_SelectedPoints;
+		C_Vertex* m_Single;
+		bool m_Drag;
 	signals:
 		void S_MousePressed(QStandardItem*, float,float);
 	protected:

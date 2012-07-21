@@ -10,8 +10,9 @@ C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
 		m_Grid[i]=-1.0+f;
 	}
 	m_Mode=Insert;
+	m_SelectedPoints=0;
 	m_Drag=false;
-	m_Move=false;
+	m_Single=false;
 }
 
 void C_GLEditor::initializeGL()
@@ -37,6 +38,7 @@ void C_GLEditor::paintGL()
 	glBegin(GL_LINES);
 	for(unsigned i=0; i<m_GridSize-1; ++i)
 	{
+		i==(m_GridSize-1)/2?glColor4f(0.0f, 0.2f, 1.0f,1.0f):glColor4f(0.85f, 0.85f, 0.85f, 1.0f);
 		glVertex2f(-1.0f, m_Grid[i]);
 		glVertex2f(1.0f, m_Grid[i]);
 		glVertex2f(m_Grid[i], -1.0f);
@@ -91,21 +93,42 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 	{
 		emit S_MousePressed(m_Polygon.m_Root,x,y);
 		m_Drag=false;
+		m_SelectedPoints=1;
+		for(std::vector<C_Vertex>::iterator it=m_Polygon.m_Verts.begin(); it!=m_Polygon.m_Verts.end(); ++it)
+		{
+			it->M_SetSelection(false);
+		}
+		m_Polygon.m_Verts.back().M_SetSelection(true);
 	}
 	else
 	{
-		m_Move=false;
+		m_Single=NULL;
+		m_Drag=true;
+		unsigned newpoints=0;
 		for(std::vector<C_Vertex>::iterator it=m_Polygon.m_Verts.begin(); it!=m_Polygon.m_Verts.end(); ++it)
 		{
-			if(M_PointInsideBox(x,y, it->M_Pos().first-0.01f, it->M_Pos().second-0.01f,
-									 it->M_Pos().first+0.01f, it->M_Pos().second+0.01f))
+			if(m_SelectedPoints) it->M_SetSelection(false);
+			if(M_PointInsideBox(x,y, it->M_Pos().first-m_MouseOverPrecision, it->M_Pos().second-m_MouseOverPrecision,
+									 it->M_Pos().first+m_MouseOverPrecision, it->M_Pos().second+m_MouseOverPrecision))
 			{
+				m_Drag=false;
 				it->M_SetSelection(true);
-				m_Move=true;
+				newpoints++;
+				m_Single=&(*it);
 			}
-			else if(!it->M_Selected()) it->M_SetSelection(false);
+			else if(it->M_Selected()) newpoints++;
+			else it->M_SetSelection(false);
 		}
-		m_Drag=true;
+		m_SelectedPoints=newpoints;
+		if(!m_Single)
+		{
+			for(std::vector<C_Vertex>::iterator it=m_Polygon.m_Verts.begin(); it!=m_Polygon.m_Verts.end(); ++it)
+			{
+				it->M_SetSelection(false);
+			}
+			m_SelectedPoints=0;
+		}
+		if(m_SelectedPoints>1) m_Single=NULL;
 	}
 	m_LastClick=std::make_pair(x,y);
 	m_LastMousePos=m_LastClick;
@@ -120,24 +143,21 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 		if(m_Mode==Insert)
 		{
 			m_Drag=false;
+			m_Single=&m_Polygon.m_Verts.back();
 			m_Polygon.m_Verts.back().M_SetPos(x,y);
+			m_SelectedPoints=1;
 		}
 		else
 		{
-			float lx=m_LastClick.first;
-			float ly=m_LastClick.second;
-			for(std::vector<C_Vertex>::iterator it=m_Polygon.m_Verts.begin(); it!=m_Polygon.m_Verts.end(); ++it)
-			{
-				if(M_PointInsideBox(it->M_Pos().first,it->M_Pos().second, lx-0.01f, ly-0.01f, lx+0.01f, ly+0.01f))
-				{
-					m_Drag=false;
-					m_Move=true;
-					break;
-				}
-			}
 			float lmx=m_LastMousePos.first;
 			float lmy=m_LastMousePos.second;
-			if(m_Move)
+
+			if(m_Single)
+			{
+				std::pair<float, float> prevPos=m_Single->M_Pos();
+				m_Single->M_SetPos(prevPos.first+(x-lmx),prevPos.second+(y-lmy));
+			}
+			else if(m_SelectedPoints>1)
 			{
 				for(std::vector<C_Vertex>::iterator it=m_Polygon.m_Verts.begin(); it!=m_Polygon.m_Verts.end(); ++it)
 				{
@@ -151,7 +171,6 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 			else
 			{
 				m_Drag=true;
-				m_Move=false;
 				m_DragPoints[0]=std::min(m_LastClick.first, x);
 				m_DragPoints[1]=std::max(m_LastClick.first, x);
 				m_DragPoints[2]=std::min(m_LastClick.second, y);
@@ -164,14 +183,30 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 				}
 			}
 		}
-		updateGL();
 	}
+	else if(m_Mode==Edit)
+	{
+		for(std::vector<C_Vertex>::iterator it=m_Polygon.m_Verts.begin(); it!=m_Polygon.m_Verts.end(); ++it)
+		{
+			if(M_PointInsideBox(x,y, it->M_Pos().first-m_MouseOverPrecision, it->M_Pos().second-m_MouseOverPrecision,
+									 it->M_Pos().first+m_MouseOverPrecision, it->M_Pos().second+m_MouseOverPrecision))
+			{
+				it->M_SetColor(QColor::fromRgbF(0.2f, 0.5f, 1.0f, 1.0f));
+			}
+			else it->M_SetColor(QColor::fromRgbF(1.0f, 0.0f, 0.0f, 1.0f));
+		}
+	}
+	updateGL();
 	m_LastMousePos=std::make_pair(x,y);
 }
 
 void C_GLEditor::mouseReleaseEvent(QMouseEvent* e)
 {
-	m_Move=false;
+	if(m_Mode==Insert)
+	{
+		m_Polygon.m_Verts.back().M_SetSelection(false);
+		m_Single=NULL;
+	}
 	if(m_Drag)
 	{
 		for(unsigned i=0; i<4; ++i) m_DragPoints[i]=0.0f;
@@ -179,6 +214,8 @@ void C_GLEditor::mouseReleaseEvent(QMouseEvent* e)
 	}
 	if(m_LastMousePos==m_LastClick)
 	{
+		m_SelectedPoints=0;
+		m_Single=NULL;
 		for(std::vector<C_Vertex>::iterator it=m_Polygon.m_Verts.begin(); it!=m_Polygon.m_Verts.end(); ++it)
 		{
 			it->M_SetSelection(false);

@@ -5,6 +5,11 @@ C_Vertex::C_Vertex(float newx, float newy) : x(newx), y(newy), m_Color(), m_Sele
 C_Vertex::C_Vertex(float newx, float newy, const QColor& c) :
 	x(newx), y(newy), m_Color(c), m_Selected(false) {}
 
+void C_Vertex::M_SetColor(const QColor& c)
+{
+	m_Color=c;
+}
+
 void C_Vertex::M_SetPos(float x, float y)
 {
 	this->x=x; this->y=y;
