@@ -5,9 +5,14 @@
 class C_Polygon
 {
 	private:
-	public:
 		QStandardItem* m_Root;
-		std::vector<C_Vertex> m_Verts; // Temporary...
-		C_Polygon(QStandardItem* root) : m_Root(root) {}
-		void M_Add(const C_Vertex& vert) { m_Verts.push_back(vert); }
+		std::vector<C_Vertex> m_Verts;
+		QColor m_BaseColor;
+	public:
+		C_Polygon(QStandardItem* root);
+		C_Polygon(QStandardItem* root, const QColor& bc);
+
+		void M_Add(const C_Vertex& vert);
+		QStandardItem* M_Root() const;
+		const C_Vertex& M_Vertex(unsigned i) const;
 };

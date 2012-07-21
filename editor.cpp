@@ -78,14 +78,14 @@ void C_Editor::S_UpdateList(QStandardItem* i)
 	if(newdata>=-1.0f && newdata<=1.0f && newdatastr.find(',') == std::string::npos)
 	{
 		i->setData(newdata);
-		std::pair<float,float> oldp=m_Editor->m_Polygon.m_Verts[i->row()].M_Pos();
+		std::pair<float,float> oldp=m_Editor->m_Polygon.M_Vertex(i->row()).M_Pos();
 		if(i->column()==0)
 		{
-			m_Editor->m_Polygon.m_Verts[i->row()].M_SetPos(newdata, oldp.second);
+			m_Editor->m_Polygon.m_Vertex(i->row()).M_SetPos(newdata, oldp.second);
 		}
 		else
 		{
-			m_Editor->m_Polygon.m_Verts[i->row()].M_SetPos(oldp.first, newdata);
+			m_Editor->m_Polygon.M_Vertex(i->row()).M_SetPos(oldp.first, newdata);
 		}
 		m_Editor->updateGL();
 	}
