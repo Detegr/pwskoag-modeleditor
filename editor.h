@@ -12,9 +12,11 @@ class C_Editor : public QWidget
 		QPushButton* m_Save;
 		QPushButton* m_Insert;
 		QPushButton* m_Edit;
+		QColorDialog* m_ColorDialog;
 		QSplitter* m_Splitter;
 		QTreeView* m_List;
 		C_GLEditor* m_Editor;
+		QList<C_Vertex*> m_VertsToColor;
 	private slots:
 		void S_Center();
 		void S_Save();
@@ -22,6 +24,8 @@ class C_Editor : public QWidget
 		void S_UpdateList(QStandardItem* i);
 		void S_SetInsertMode();
 		void S_SetEditMode();
+		void S_OpenColorDialog(QList<C_Vertex*>);
+		void S_ColorChanged(const QColor&);
 	public:
 		C_Editor();
 };

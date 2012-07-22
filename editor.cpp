@@ -39,6 +39,11 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	m_Editor = new C_GLEditor(this, m_Root);
 	QObject::connect(m_Editor, SIGNAL(S_MousePressed(QStandardItem*, float, float)), this, SLOT(S_AddToList(QStandardItem*, float, float)));
 
+	m_ColorDialog = new QColorDialog(this);
+	m_ColorDialog->hide();
+	QObject::connect(m_Editor, SIGNAL(S_RequestColorDialog(QList<C_Vertex*>)), this, SLOT(S_OpenColorDialog(QList<C_Vertex*>)));
+	QObject::connect(m_ColorDialog, SIGNAL(colorSelected(const QColor&)), this, SLOT(S_ColorChanged(const QColor&)));
+
 	m_Save->setFixedWidth(160);
 	m_Center->setFixedWidth(160);
 	m_List->setFixedWidth(160);
@@ -55,6 +60,19 @@ C_Editor::C_Editor() : m_Editor(NULL)
 
 	setLayout(layout);
 	setMinimumSize(800,600);
+}
+
+void C_Editor::S_OpenColorDialog(QList<C_Vertex*> affectedverts)
+{
+	m_ColorDialog->setVisible(true);
+	m_VertsToColor=affectedverts; // Copying... Don't know if this could be done more cleverly.
+}
+void C_Editor::S_ColorChanged(const QColor& c)
+{
+	for(QList<C_Vertex*>::iterator it=m_VertsToColor.begin(); it!=m_VertsToColor.end(); ++it)
+	{
+		(*it)->M_SetColor(c);
+	}
 }
 
 void C_Editor::S_Center()

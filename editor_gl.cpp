@@ -221,6 +221,7 @@ void C_GLEditor::mouseReleaseEvent(QMouseEvent* e)
 		for(unsigned i=0; i<4; ++i) m_DragPoints[i]=0.0f;
 		update=true;
 	}
+	/*
 	if(m_LastMousePos==m_LastClick)
 	{
 		for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
@@ -232,7 +233,18 @@ void C_GLEditor::mouseReleaseEvent(QMouseEvent* e)
 			}
 		}
 	}
+	*/
 	if(update) updateGL();
+}
+
+void C_GLEditor::mouseDoubleClickEvent(QMouseEvent* e)
+{
+	QList<C_Vertex*> ql;
+	for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
+	{
+		if(it->M_Selected()) ql << &(*it);
+	}
+	if(ql.size()) emit(S_RequestColorDialog(ql));
 }
 
 bool C_GLEditor::M_PointInsideBox(float px, float py, float x1, float y1, float x2, float y2)

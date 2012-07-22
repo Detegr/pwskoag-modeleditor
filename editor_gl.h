@@ -30,6 +30,7 @@ class C_GLEditor : public QGLWidget
 
 	signals:
 		void S_MousePressed(QStandardItem*, float,float);
+		void S_RequestColorDialog(QList<C_Vertex*>);
 	protected:
 		void initializeGL();
 		void paintGL();
@@ -37,6 +38,7 @@ class C_GLEditor : public QGLWidget
 		void mousePressEvent(QMouseEvent* e);
 		void mouseReleaseEvent(QMouseEvent* e);
 		void mouseMoveEvent(QMouseEvent* e);
+		void mouseDoubleClickEvent(QMouseEvent* e);
 		bool M_MouseOverVertex(float, float, const C_Vertex& v);
 	public:
 		C_GLEditor(QWidget* parent, QStandardItem* root);
