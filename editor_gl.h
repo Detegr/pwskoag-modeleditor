@@ -22,6 +22,7 @@ class C_GLEditor : public QGLWidget
 		std::pair<float, float> m_LastMousePos;
 		float m_DragPoints[4];
 		unsigned m_SelectedPoints;
+		unsigned m_DragSelectionPoints;
 		C_Vertex* m_Single;
 		bool m_Drag;
 
@@ -39,6 +40,7 @@ class C_GLEditor : public QGLWidget
 		void mousePressEvent(QMouseEvent* e);
 		void mouseReleaseEvent(QMouseEvent* e);
 		void mouseMoveEvent(QMouseEvent* e);
+		bool M_MouseOverVertex(float, float, const C_Vertex& v);
 	public:
 		C_GLEditor(QWidget* parent, QStandardItem* root);
 		~C_GLEditor() {}
