@@ -21,9 +21,6 @@ class C_GLEditor : public QGLWidget
 		std::pair<float, float> m_LastClick;
 		std::pair<float, float> m_LastMousePos;
 		float m_DragPoints[4];
-		unsigned m_SelectedPoints;
-		unsigned m_DragSelectionPoints;
-		C_Vertex* m_Single;
 		bool m_Drag;
 
 		void M_PaintGrid();

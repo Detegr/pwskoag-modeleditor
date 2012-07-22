@@ -10,8 +10,6 @@ C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
 		m_Grid[i]=-1.0+f;
 	}
 	m_Mode=Insert;
-	m_DragSelectionPoints=0;
-	m_Single=NULL;
 	m_Drag=false;
 	m_ActivePoly=&m_Polygon;
 }
@@ -115,7 +113,6 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 	{
 		emit S_MousePressed(m_ActivePoly->M_Root(),x,y);
 		m_Drag=false;
-		//m_Single=&m_Polygon.M_Last();
 		for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
 		{
 			it->M_SetSelection(false);
@@ -124,7 +121,6 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 	}
 	else
 	{
-		m_Single=NULL;
 		m_Drag=true;
 		for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
 		{
@@ -176,13 +172,11 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 				m_DragPoints[1]=std::max(m_LastClick.first, x);
 				m_DragPoints[2]=std::min(m_LastClick.second, y);
 				m_DragPoints[3]=std::max(m_LastClick.second, y);
-				m_DragSelectionPoints=0;
 				for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
 				{
 					std::pair<float, float> pos=it->M_Pos();
 					if(M_PointInsideBox(pos.first, pos.second, m_DragPoints[0], m_DragPoints[2], m_DragPoints[1], m_DragPoints[3]))
 					{
-						m_DragSelectionPoints++;
 						it->M_SetSelection(true);
 					}
 					else it->M_SetSelection(false);
@@ -224,7 +218,6 @@ void C_GLEditor::mouseReleaseEvent(QMouseEvent* e)
 	}
 	if(m_Drag)
 	{
-		m_DragSelectionPoints=0;
 		for(unsigned i=0; i<4; ++i) m_DragPoints[i]=0.0f;
 		update=true;
 	}

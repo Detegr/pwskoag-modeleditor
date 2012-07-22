@@ -2,17 +2,18 @@
 #include <vector>
 #include <QtGui/QColor>
 
+class C_Polygon;
 class C_Vertex
 {
 	private:
+		C_Polygon* m_Parent;
 		float x,y;
 		QColor m_Color;
 		bool m_Selected;
 		bool m_Hovering;
 	public:
-		C_Vertex();
-		C_Vertex(float newx, float newy);
-		C_Vertex(float newx, float newy, const QColor& c);
+		C_Vertex(C_Polygon* p);
+		C_Vertex(float newx, float newy, const QColor& c, C_Polygon* p);
 		void M_SetColor(const QColor& c);
 		const QColor& M_Color() const { return m_Color; }
 		void M_SetSelection(bool b) { m_Selected=b; }

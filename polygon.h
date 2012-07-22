@@ -6,10 +6,13 @@
 
 class C_Polygon
 {
+	friend class C_Vertex;
 	private:
 		QStandardItem* m_Root;
 		std::vector<C_Vertex> m_Verts;
 		QColor m_BaseColor;
+
+		void M_NewPos(const C_Vertex* v, float x, float y);
 	public:
 		typedef std::vector<C_Vertex>::iterator iterator;
 		typedef std::vector<C_Vertex>::const_iterator const_iterator;
