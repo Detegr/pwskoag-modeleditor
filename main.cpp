@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "editor.h"
+#include "main.h"
 
  void myMessageOutput(QtMsgType type, const char *msg)
  {
@@ -20,13 +21,12 @@
          fprintf(stderr, "Fatal: %s\n", msg);
          abort();
      }
- }
+}
 
 int main(int argc, char **argv)
 {
 	qInstallMsgHandler(myMessageOutput);
 	QApplication app(argc, argv);
-	C_Editor e;
-	e.show();
+	C_Main w(new C_Editor);
 	return app.exec();
 }

@@ -5,6 +5,8 @@ class C_Editor : public QWidget
 {
 	Q_OBJECT
 	private:
+		C_GLEditor* m_Editor;
+		QMenuBar* m_Menu;
 		QStandardItemModel* m_Model;
 		QStandardItem* m_Root;
 		QHeaderView* m_HeaderView;
@@ -15,7 +17,6 @@ class C_Editor : public QWidget
 		QColorDialog* m_ColorDialog;
 		QSplitter* m_Splitter;
 		QTreeView* m_List;
-		C_GLEditor* m_Editor;
 		QList<C_Vertex*> m_VertsToColor;
 	private slots:
 		void S_Center();
