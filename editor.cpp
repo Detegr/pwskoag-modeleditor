@@ -1,6 +1,7 @@
 #include "editor.h"
 #include <iostream>
 #include <sstream>
+#include "filereader.h"
 
 C_Editor::C_Editor() : m_Editor(NULL)
 {
@@ -26,14 +27,11 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	QVBoxLayout *vb = new QVBoxLayout();
 	vb->addWidget(frame);
 	m_Splitter->setOrientation(Qt::Vertical);
-	m_Splitter->addWidget(m_List);
-	m_List->setHeaderHidden(true);
 	m_Model = new QStandardItemModel(this);
 	QObject::connect(m_Model, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(S_UpdateList(QStandardItem*)));
 	m_Model->setColumnCount(2);
 	m_Root = new QStandardItem("Object 1");
 	m_Model->appendRow(m_Root);
-	m_List->setModel(m_Model);
 	vb->setAlignment(Qt::AlignTop);
 
 	m_Editor = new C_GLEditor(this, m_Root);
@@ -46,12 +44,17 @@ C_Editor::C_Editor() : m_Editor(NULL)
 
 	m_Save->setFixedWidth(160);
 	m_Center->setFixedWidth(160);
+
+	m_Splitter->addWidget(m_List);
+	m_List->setHeaderHidden(true);
+	m_List->setModel(m_Model);
 	m_List->setFixedWidth(160);
 	m_List->setIndentation(12);
 	m_List->setColumnWidth(0, 80);
 	m_List->setColumnWidth(1, 20);
 	m_List->setFirstColumnSpanned(0, m_Model->index(0, -1), true);
 	m_List->expandAll();
+
 	vb->addWidget(m_Save);
 	vb->addWidget(m_Center);
 	vb->addWidget(m_Splitter);
@@ -144,4 +147,40 @@ void C_Editor::S_SetEditMode()
 	m_Edit->setDown(true);
 	m_Editor->m_Mode=C_GLEditor::Edit;
 	m_Editor->setMouseTracking(true);
+}
+
+void C_Editor::S_OpenFile(const QString& path)
+{
+	std::vector<std::string> strs=C_FileReader::M_ReadToArray(path.toStdString());
+	std::stringstream ss;
+	ss.precision(3);
+	m_Model->clear();
+	m_Root = new QStandardItem("Object 1");
+	m_Model->setColumnCount(2);
+	m_Model->appendRow(m_Root);
+	m_List->setFirstColumnSpanned(0, m_Model->indexFromItem(m_Root), true);
+	m_Editor->m_Polygon=C_Polygon(m_Root);
+	m_List->setFirstColumnSpanned(0, m_Model->index(0, -1), true);
+
+	float x=0; float y=0;
+	for(std::vector<std::string>::iterator it=strs.begin(); it!=strs.end(); ++it)
+	{
+		ss << *it++;
+		ss >> x;
+		ss.clear();
+		ss << *it;
+		ss >> y;
+		ss.clear();
+		S_AddToList(m_Root,x,y);
+	}
+}
+
+void C_Editor::S_SaveFile(const QString& path)
+{
+	std::ofstream out(path.toStdString().c_str());
+	for(C_Polygon::iterator it=m_Editor->m_Polygon.begin(); it!=m_Editor->m_Polygon.end(); ++it)
+	{
+		out << it->M_Pos().first << "\n" << it->M_Pos().second << "\n";
+	}
+	out.close();
 }

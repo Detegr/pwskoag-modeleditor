@@ -27,6 +27,8 @@ class C_Editor : public QWidget
 		void S_SetEditMode();
 		void S_OpenColorDialog(QList<C_Vertex*>);
 		void S_ColorChanged(const QColor&);
+		void S_OpenFile(const QString&);
+		void S_SaveFile(const QString& path);
 	public:
 		C_Editor();
 };
