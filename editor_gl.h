@@ -28,9 +28,6 @@ class C_GLEditor : public QGLWidget
 		void M_PaintPoints(const C_Polygon& p);
 		void M_PaintDrag();
 
-		QMutex m_Lock;
-		int m_PendingPolyIndex;
-
 	signals:
 		void S_MousePressed(QStandardItem*, float,float);
 		void S_RequestColorDialog(QList<C_Vertex*>);
