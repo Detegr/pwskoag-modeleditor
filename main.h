@@ -37,13 +37,18 @@ class C_Main : public QMainWindow
 			QMenu* bar=menuBar()->addMenu(tr("&File"));
 			QAction* open=new QAction(tr("&Open"), this);
 			open->setShortcuts(QKeySequence::Open);
-			bar->addAction(open);
 			QObject::connect(open, SIGNAL(triggered()), this, SLOT(S_OpenDialog()));
 			QAction* save=new QAction(tr("&Save"), this);
-			QObject::connect(save, SIGNAL(triggered()), this, SLOT(S_SaveDialog()));
 			save->setShortcuts(QKeySequence::Save);
+			QObject::connect(save, SIGNAL(triggered()), this, SLOT(S_SaveDialog()));
+			QAction* quit=new QAction(tr("&Quit"), this);
+			QObject::connect(quit, SIGNAL(triggered()), qApp, SLOT(quit()));
+			quit->setShortcuts(QKeySequence::Quit);
+
+			bar->addAction(open);
 			bar->addAction(save);
-			//bar->addAction(new QAction(tr("&Quit"), this));
+			bar->addAction(quit);
+
 			setCentralWidget(c);
 			show();
 		}
