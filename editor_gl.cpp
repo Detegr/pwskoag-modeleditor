@@ -4,7 +4,7 @@
 C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
 	QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
-	m_Polygons.push_back(C_Polygon(root));
+	m_Polygons.push_back(new C_Polygon(root));
 	float f=2.0f/m_GridSize;
 	for(unsigned i=0; i<m_GridSize-1; ++i, f+=(2.0f/m_GridSize))
 	{
@@ -12,7 +12,14 @@ C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
 	}
 	m_Mode=Insert;
 	m_Drag=false;
-	m_ActivePoly=&m_Polygons.back();
+	m_ActivePoly=m_Polygons.back();
+}
+C_GLEditor::~C_GLEditor()
+{
+	for(std::vector<C_Polygon*>::iterator it=m_Polygons.begin(); it!=m_Polygons.end(); ++it)
+	{
+		delete *it;
+	}
 }
 
 void C_GLEditor::initializeGL()
@@ -99,10 +106,10 @@ void C_GLEditor::paintGL()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	M_PaintGrid();
-	for(std::vector<C_Polygon>::iterator it=m_Polygons.begin(); it!=m_Polygons.end(); ++it)
+	for(std::vector<C_Polygon*>::iterator it=m_Polygons.begin(); it!=m_Polygons.end(); ++it)
 	{
-		M_PaintPolygon(*it);
-		M_PaintPoints(*it);
+		M_PaintPolygon(**it);
+		M_PaintPoints(**it);
 	}
 	if(m_Drag) M_PaintDrag();
 }
@@ -281,14 +288,6 @@ void C_GLEditor::M_Center()
 		it->M_SetPos(pos.first-diffx, pos.second-diffy);
 	}
 	updateGL();
-}
-
-void C_GLEditor::M_Dump() const
-{
-	for(C_Polygon::const_iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
-	{
-		std::cout << it->M_Pos().first << "\n" << it->M_Pos().second << std::endl;
-	}
 }
 
 float C_GLEditor::M_RoundToPrecision(float num, unsigned precision)

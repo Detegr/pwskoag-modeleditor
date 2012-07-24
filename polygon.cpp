@@ -51,6 +51,7 @@ void C_Polygon::M_NewPos(const C_Vertex* v, float x, float y)
 			ss.clear();
 			ss << y; ss >> str;
 			r->setText(QString(str.c_str()));
+			break;
 		}
 	}
 }

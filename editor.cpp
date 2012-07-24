@@ -88,15 +88,18 @@ void C_Editor::S_NewPolygon()
 {
 	QStandardItem *newroot = new QStandardItem("Object");
 	m_Model->appendRow(newroot);
-	m_Editor->m_Polygons.push_back(C_Polygon(newroot));
-	m_Editor->m_ActivePoly=&m_Editor->m_Polygons.back();
+	m_Editor->m_Polygons.push_back(new C_Polygon(newroot));
+	m_Editor->m_ActivePoly=m_Editor->m_Polygons.back();
 }
 
 void C_Editor::S_SetActivePoly(const QModelIndex& index)
 {
 	QStandardItem* i=m_Model->itemFromIndex(index);
-	while(i->parent()) i=(QStandardItem*)parent();
-	std::cout << i->row() << std::endl;
+	if(i->parent())
+	{
+		m_Editor->m_ActivePoly=m_Editor->m_Polygons[i->parent()->row()];
+		m_Editor->updateGL();
+	}
 }
 
 void C_Editor::S_UpdateList(QStandardItem* i)
