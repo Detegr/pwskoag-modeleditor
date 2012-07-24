@@ -8,10 +8,9 @@ class C_Editor : public QWidget
 		C_GLEditor* m_Editor;
 		QMenuBar* m_Menu;
 		QStandardItemModel* m_Model;
-		QStandardItem* m_Root;
 		QHeaderView* m_HeaderView;
 		QPushButton* m_Center;
-		QPushButton* m_Save;
+		QPushButton* m_New;
 		QPushButton* m_Insert;
 		QPushButton* m_Edit;
 		QColorDialog* m_ColorDialog;
@@ -20,7 +19,7 @@ class C_Editor : public QWidget
 		QList<C_Vertex*> m_VertsToColor;
 	private slots:
 		void S_Center();
-		void S_Save();
+		void S_NewPolygon();
 		void S_AddToList(QStandardItem*, float, float);
 		void S_UpdateList(QStandardItem* i);
 		void S_SetInsertMode();

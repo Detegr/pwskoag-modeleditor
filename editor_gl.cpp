@@ -2,8 +2,9 @@
 #include <iostream>
 
 C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
-	QGLWidget(QGLFormat(QGL::SampleBuffers), parent), m_Polygon(root)
+	QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
+	m_Polygons.push_back(C_Polygon(root));
 	float f=2.0f/m_GridSize;
 	for(unsigned i=0; i<m_GridSize-1; ++i, f+=(2.0f/m_GridSize))
 	{
@@ -11,7 +12,7 @@ C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
 	}
 	m_Mode=Insert;
 	m_Drag=false;
-	m_ActivePoly=&m_Polygon;
+	m_ActivePoly=&m_Polygons.back();
 }
 
 void C_GLEditor::initializeGL()
@@ -59,12 +60,16 @@ void C_GLEditor::M_PaintPoints(const C_Polygon& p)
 	glBegin(GL_POINTS);
 	for(C_Polygon::const_iterator it=p.begin(); it!=p.end(); ++it)
 	{
-		if(it->M_Selected() || it->M_Hovering())
+		if(&p == m_ActivePoly)
 		{
-			if(it->M_Selected()) qglColor(QColor::fromRgbF(0.0f, 1.0f, 0.0f, 1.0f));
-			else if(it->M_Hovering()) qglColor(QColor::fromRgbF(0.0f, 0.0f, 1.0f, 1.0f));
+			if(it->M_Selected() || it->M_Hovering())
+			{
+				if(it->M_Selected()) qglColor(QColor::fromRgbF(0.0f, 1.0f, 0.0f, 1.0f));
+				else if(it->M_Hovering()) qglColor(QColor::fromRgbF(0.0f, 0.0f, 1.0f, 1.0f));
+			}
+			else qglColor(QColor::fromRgbF(1.0f, 0.0f, 0.0f, 1.0f));
 		}
-		else qglColor(QColor::fromRgbF(1.0f, 0.0f, 0.0f, 1.0f));
+		else qglColor(QColor::fromRgbF(0.4f, 0.4f, 0.4f, 1.0f));
 		std::pair<float, float> pos=it->M_Pos();
 		glVertex3f(pos.first, pos.second, -1.0f);
 	}
@@ -94,8 +99,11 @@ void C_GLEditor::paintGL()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	M_PaintGrid();
-	M_PaintPolygon(m_Polygon);
-	M_PaintPoints(m_Polygon);
+	for(std::vector<C_Polygon>::iterator it=m_Polygons.begin(); it!=m_Polygons.end(); ++it)
+	{
+		M_PaintPolygon(*it);
+		M_PaintPoints(*it);
+	}
 	if(m_Drag) M_PaintDrag();
 }
 
@@ -117,7 +125,7 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 		{
 			it->M_SetSelection(false);
 		}
-		m_Polygon.M_Last().M_SetSelection(true);
+		m_ActivePoly->M_Last().M_SetSelection(true);
 	}
 	else
 	{
@@ -159,7 +167,7 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 		if(m_Mode==Insert)
 		{
 			m_Drag=false;
-			m_Polygon.M_Last().M_SetPos(x,y);
+			m_ActivePoly->M_Last().M_SetPos(x,y);
 		}
 		else
 		{
@@ -214,7 +222,7 @@ void C_GLEditor::mouseReleaseEvent(QMouseEvent* e)
 	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f);
 	if(m_Mode==Insert)
 	{
-		m_Polygon.M_Last().M_SetSelection(false);
+		m_ActivePoly->M_Last().M_SetSelection(false);
 	}
 	if(m_Drag)
 	{

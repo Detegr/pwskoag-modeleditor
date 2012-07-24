@@ -13,7 +13,7 @@ class C_GLEditor : public QGLWidget
 		{
 			Insert, Edit
 		};
-		C_Polygon m_Polygon;
+		std::vector<C_Polygon> m_Polygons;
 		C_Polygon* m_ActivePoly;
 		Mode m_Mode;
 		static const unsigned m_GridSize=20;

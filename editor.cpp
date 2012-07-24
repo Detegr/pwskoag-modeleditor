@@ -7,8 +7,8 @@ C_Editor::C_Editor() : m_Editor(NULL)
 {
 	m_Center = new QPushButton(tr("Center"), this);
 	QObject::connect(m_Center, SIGNAL(clicked()), this, SLOT(S_Center()));
-	m_Save = new QPushButton(tr("Save"), this);
-	QObject::connect(m_Save, SIGNAL(clicked()), this, SLOT(S_Save()));
+	m_New = new QPushButton(tr("New polygon"), this);
+	QObject::connect(m_New, SIGNAL(clicked()), this, SLOT(S_NewPolygon()));
 	m_Insert = new QPushButton(tr("Insert"), this);
 	m_Insert->setDown(true);
 	QObject::connect(m_Insert, SIGNAL(clicked()), this, SLOT(S_SetInsertMode()));
@@ -30,11 +30,11 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	m_Model = new QStandardItemModel(this);
 	QObject::connect(m_Model, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(S_UpdateList(QStandardItem*)));
 	m_Model->setColumnCount(2);
-	m_Root = new QStandardItem("Object 1");
-	m_Model->appendRow(m_Root);
+	QStandardItem* root = new QStandardItem("Object 1");
+	m_Model->appendRow(root);
 	vb->setAlignment(Qt::AlignTop);
 
-	m_Editor = new C_GLEditor(this, m_Root);
+	m_Editor = new C_GLEditor(this, root);
 	QObject::connect(m_Editor, SIGNAL(S_MousePressed(QStandardItem*, float, float)), this, SLOT(S_AddToList(QStandardItem*, float, float)));
 
 	m_ColorDialog = new QColorDialog(this);
@@ -42,7 +42,7 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	QObject::connect(m_Editor, SIGNAL(S_RequestColorDialog(QList<C_Vertex*>)), this, SLOT(S_OpenColorDialog(QList<C_Vertex*>)));
 	QObject::connect(m_ColorDialog, SIGNAL(colorSelected(const QColor&)), this, SLOT(S_ColorChanged(const QColor&)));
 
-	m_Save->setFixedWidth(160);
+	m_New->setFixedWidth(160);
 	m_Center->setFixedWidth(160);
 
 	m_Splitter->addWidget(m_List);
@@ -55,7 +55,7 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	m_List->setFirstColumnSpanned(0, m_Model->index(0, -1), true);
 	m_List->expandAll();
 
-	vb->addWidget(m_Save);
+	vb->addWidget(m_New);
 	vb->addWidget(m_Center);
 	vb->addWidget(m_Splitter);
 	layout->addLayout(vb);
@@ -83,9 +83,12 @@ void C_Editor::S_Center()
 	m_Editor->M_Center();
 }
 
-void C_Editor::S_Save()
+void C_Editor::S_NewPolygon()
 {
-	m_Editor->M_Dump();
+	QStandardItem *newroot = new QStandardItem("Object");
+	m_Model->appendRow(newroot);
+	m_Editor->m_Polygons.push_back(C_Polygon(newroot));
+	m_Editor->m_ActivePoly=&m_Editor->m_Polygons.back();
 }
 
 void C_Editor::S_UpdateList(QStandardItem* i)
@@ -99,14 +102,14 @@ void C_Editor::S_UpdateList(QStandardItem* i)
 	if(newdata>=-1.0f && newdata<=1.0f && newdatastr.find(',') == std::string::npos)
 	{
 		i->setData(newdata);
-		std::pair<float,float> oldp=m_Editor->m_Polygon.M_Vertex(i->row()).M_Pos();
+		std::pair<float,float> oldp=m_Editor->m_ActivePoly->M_Vertex(i->row()).M_Pos();
 		if(i->column()==0)
 		{
-			m_Editor->m_Polygon.M_Vertex(i->row()).M_SetPos(newdata, oldp.second);
+			m_Editor->m_ActivePoly->M_Vertex(i->row()).M_SetPos(newdata, oldp.second);
 		}
 		else
 		{
-			m_Editor->m_Polygon.M_Vertex(i->row()).M_SetPos(oldp.first, newdata);
+			m_Editor->m_ActivePoly->M_Vertex(i->row()).M_SetPos(oldp.first, newdata);
 		}
 		m_Editor->updateGL();
 	}
@@ -131,7 +134,7 @@ void C_Editor::S_AddToList(QStandardItem* obj, float x, float y)
 	QStandardItem* iy = new QStandardItem(s);
 	iy->setData(QVariant(y));
 	obj->appendRow(QList<QStandardItem*>() << ix << iy);
-	m_Editor->m_Polygon.M_Add(x,y);
+	m_Editor->m_ActivePoly->M_Add(x,y);
 }
 
 void C_Editor::S_SetInsertMode()
@@ -151,6 +154,7 @@ void C_Editor::S_SetEditMode()
 
 void C_Editor::S_OpenFile(const QString& path)
 {
+/*
 	std::vector<std::string> strs=C_FileReader::M_ReadToArray(path.toStdString());
 	std::stringstream ss;
 	ss.precision(3);
@@ -173,14 +177,17 @@ void C_Editor::S_OpenFile(const QString& path)
 		ss.clear();
 		S_AddToList(m_Root,x,y);
 	}
+*/
 }
 
 void C_Editor::S_SaveFile(const QString& path)
 {
+/*
 	std::ofstream out(path.toStdString().c_str());
 	for(C_Polygon::iterator it=m_Editor->m_Polygon.begin(); it!=m_Editor->m_Polygon.end(); ++it)
 	{
 		out << it->M_Pos().first << "\n" << it->M_Pos().second << "\n";
 	}
 	out.close();
+*/
 }
