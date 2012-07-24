@@ -20,6 +20,7 @@ class C_Editor : public QWidget
 	private slots:
 		void S_Center();
 		void S_NewPolygon();
+		void S_SetActivePoly(const QModelIndex&);
 		void S_AddToList(QStandardItem*, float, float);
 		void S_UpdateList(QStandardItem* i);
 		void S_SetInsertMode();

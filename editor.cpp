@@ -14,7 +14,6 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	QObject::connect(m_Insert, SIGNAL(clicked()), this, SLOT(S_SetInsertMode()));
 	m_Edit = new QPushButton(tr("Edit"), this);
 	QObject::connect(m_Edit, SIGNAL(clicked()), this, SLOT(S_SetEditMode()));
-	m_List = new QTreeView(this);
 	m_Splitter = new QSplitter(this);
 
 	QFrame* frame = new QFrame(this);
@@ -45,6 +44,8 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	m_New->setFixedWidth(160);
 	m_Center->setFixedWidth(160);
 
+	m_List = new QTreeView(this);
+	QObject::connect(m_List, SIGNAL(clicked(const QModelIndex&)), this, SLOT(S_SetActivePoly(const QModelIndex&)));
 	m_Splitter->addWidget(m_List);
 	m_List->setHeaderHidden(true);
 	m_List->setModel(m_Model);
@@ -89,6 +90,13 @@ void C_Editor::S_NewPolygon()
 	m_Model->appendRow(newroot);
 	m_Editor->m_Polygons.push_back(C_Polygon(newroot));
 	m_Editor->m_ActivePoly=&m_Editor->m_Polygons.back();
+}
+
+void C_Editor::S_SetActivePoly(const QModelIndex& index)
+{
+	QStandardItem* i=m_Model->itemFromIndex(index);
+	while(i->parent()) i=(QStandardItem*)parent();
+	std::cout << i->row() << std::endl;
 }
 
 void C_Editor::S_UpdateList(QStandardItem* i)
