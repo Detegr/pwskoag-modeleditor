@@ -95,11 +95,8 @@ void C_Editor::S_NewPolygon()
 void C_Editor::S_SetActivePoly(const QModelIndex& index)
 {
 	QStandardItem* i=m_Model->itemFromIndex(index);
-	if(i->parent())
-	{
-		m_Editor->m_ActivePoly=m_Editor->m_Polygons[i->parent()->row()];
-		m_Editor->updateGL();
-	}
+	m_Editor->m_ActivePoly=m_Editor->m_Polygons[i->parent()?i->parent()->row():i->row()];
+	m_Editor->updateGL();
 }
 
 void C_Editor::S_UpdateList(QStandardItem* i)
