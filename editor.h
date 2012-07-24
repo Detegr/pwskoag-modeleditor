@@ -19,7 +19,7 @@ class C_Editor : public QWidget
 		QList<C_Vertex*> m_VertsToColor;
 	private slots:
 		void S_Center();
-		void S_NewPolygon();
+		QStandardItem* S_NewPolygon(const std::string& name="Object");
 		void S_SetActivePoly(const QModelIndex&);
 		void S_AddToList(QStandardItem*, float, float);
 		void S_UpdateList(QStandardItem* i);

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include "filereader.h"
+#include <assert.h>
 
 C_Editor::C_Editor() : m_Editor(NULL)
 {
@@ -53,7 +54,7 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	m_List->setIndentation(12);
 	m_List->setColumnWidth(0, 80);
 	m_List->setColumnWidth(1, 20);
-	m_List->setFirstColumnSpanned(0, m_Model->index(0, -1), true);
+	m_List->setFirstColumnSpanned(root->row(), m_Model->indexFromItem(root->parent()), true);
 	m_List->expandAll();
 
 	vb->addWidget(m_New);
@@ -84,12 +85,16 @@ void C_Editor::S_Center()
 	m_Editor->M_Center();
 }
 
-void C_Editor::S_NewPolygon()
+QStandardItem* C_Editor::S_NewPolygon(const std::string& name)
 {
-	QStandardItem *newroot = new QStandardItem("Object");
+	QStandardItem *newroot = new QStandardItem(name.c_str());
 	m_Model->appendRow(newroot);
-	m_Editor->m_Polygons.push_back(new C_Polygon(newroot));
-	m_Editor->m_ActivePoly=m_Editor->m_Polygons.back();
+	m_List->expand(m_Model->indexFromItem(newroot));
+	m_List->setFirstColumnSpanned(newroot->row(), m_Model->indexFromItem(newroot->parent()), true);
+	C_Polygon* newpoly=new C_Polygon(newroot);
+	m_Editor->m_Polygons.push_back(newpoly);
+	m_Editor->m_ActivePoly=newpoly;
+	return newroot;
 }
 
 void C_Editor::S_SetActivePoly(const QModelIndex& index)
@@ -101,34 +106,37 @@ void C_Editor::S_SetActivePoly(const QModelIndex& index)
 
 void C_Editor::S_UpdateList(QStandardItem* i)
 {
-	const std::string& newdatastr=i->text().toStdString();
-	float olddata=i->data().toFloat();
-	std::stringstream ss;
-	ss << newdatastr;
-	float newdata;
-	ss >> newdata;
-	if(newdata>=-1.0f && newdata<=1.0f && newdatastr.find(',') == std::string::npos)
+	if(i->parent()) // Allow renaming of polygon objects
 	{
-		i->setData(newdata);
-		std::pair<float,float> oldp=m_Editor->m_ActivePoly->M_Vertex(i->row()).M_Pos();
-		if(i->column()==0)
+		const std::string& newdatastr=i->text().toStdString();
+		float olddata=i->data().toFloat();
+		std::stringstream ss;
+		ss << newdatastr;
+		float newdata;
+		ss >> newdata;
+		if(newdata>=-1.0f && newdata<=1.0f && newdatastr.find(',') == std::string::npos)
 		{
-			m_Editor->m_ActivePoly->M_Vertex(i->row()).M_SetPos(newdata, oldp.second);
+			i->setData(newdata);
+			std::pair<float,float> oldp=m_Editor->m_ActivePoly->M_Vertex(i->row()).M_Pos();
+			if(i->column()==0)
+			{
+				m_Editor->m_ActivePoly->M_Vertex(i->row()).M_SetPos(newdata, oldp.second);
+			}
+			else
+			{
+				m_Editor->m_ActivePoly->M_Vertex(i->row()).M_SetPos(oldp.first, newdata);
+			}
+			m_Editor->updateGL();
 		}
 		else
 		{
-			m_Editor->m_ActivePoly->M_Vertex(i->row()).M_SetPos(oldp.first, newdata);
+			std::stringstream ss;
+			ss << olddata;
+			std::string oldstr;
+			ss >> oldstr;
+			QString oldqstr(oldstr.c_str());
+			i->setText(oldqstr);
 		}
-		m_Editor->updateGL();
-	}
-	else
-	{
-		std::stringstream ss;
-		ss << olddata;
-		std::string oldstr;
-		ss >> oldstr;
-		QString oldqstr(oldstr.c_str());
-		i->setText(oldqstr);
 	}
 }
 
@@ -162,40 +170,52 @@ void C_Editor::S_SetEditMode()
 
 void C_Editor::S_OpenFile(const QString& path)
 {
-/*
 	std::vector<std::string> strs=C_FileReader::M_ReadToArray(path.toStdString());
 	std::stringstream ss;
 	ss.precision(3);
 	m_Model->clear();
-	m_Root = new QStandardItem("Object 1");
 	m_Model->setColumnCount(2);
-	m_Model->appendRow(m_Root);
-	m_List->setFirstColumnSpanned(0, m_Model->indexFromItem(m_Root), true);
-	m_Editor->m_Polygon=C_Polygon(m_Root);
-	m_List->setFirstColumnSpanned(0, m_Model->index(0, -1), true);
+	for(std::vector<C_Polygon*>::iterator it=m_Editor->m_Polygons.begin(); it!=m_Editor->m_Polygons.end(); ++it)
+	{
+		delete *it;
+	}
+	m_Editor->m_Polygons=std::vector<C_Polygon*>();
 
 	float x=0; float y=0;
-	for(std::vector<std::string>::iterator it=strs.begin(); it!=strs.end(); ++it)
+	unsigned i=0;
+	QStandardItem* newroot=NULL;
+	for(std::vector<std::string>::iterator it=strs.begin(); it!=strs.end(); ++it, ++i)
 	{
+		if(it->find('>')==0)
+		{
+			newroot=S_NewPolygon(it->substr(8, std::string::npos));
+			i=0;
+			continue;
+		}
 		ss << *it++;
 		ss >> x;
 		ss.clear();
 		ss << *it;
 		ss >> y;
 		ss.clear();
-		S_AddToList(m_Root,x,y);
+		assert(newroot!=NULL);
+		S_AddToList(newroot,x,y);
 	}
-*/
+	m_Editor->updateGL();
 }
 
 void C_Editor::S_SaveFile(const QString& path)
 {
-/*
 	std::ofstream out(path.toStdString().c_str());
-	for(C_Polygon::iterator it=m_Editor->m_Polygon.begin(); it!=m_Editor->m_Polygon.end(); ++it)
+	unsigned i=0;
+	for(std::vector<C_Polygon*>::const_iterator it=m_Editor->m_Polygons.begin(); it!=m_Editor->m_Polygons.end(); ++it, ++i)
 	{
-		out << it->M_Pos().first << "\n" << it->M_Pos().second << "\n";
+		QString polyname = m_Model->item(i)->text();
+		out << "> POLY: " << polyname.toStdString() << "\n";
+		for(C_Polygon::const_iterator pi=(*it)->begin(); pi!=(*it)->end(); ++pi)
+		{
+			out << pi->M_Pos().first << "\n" << pi->M_Pos().second << "\n";
+		}
 	}
 	out.close();
-*/
 }
