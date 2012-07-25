@@ -61,6 +61,9 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	layout->addLayout(vb);
 	layout->addWidget(m_Editor);
 
+	m_Delete = new QShortcut(QKeySequence(tr("Delete")), this);
+	QObject::connect(m_Delete, signal(activated()), this, SLOT(S_DeletePoint()));
+
 	setLayout(layout);
 	setMinimumSize(800,600);
 }

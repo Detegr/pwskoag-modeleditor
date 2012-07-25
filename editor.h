@@ -17,6 +17,7 @@ class C_Editor : public QWidget
 		QSplitter* m_Splitter;
 		QTreeView* m_List;
 		QList<C_Vertex*> m_VertsToColor;
+		QShortcut* m_Delete;
 	private slots:
 		void S_Center();
 		void S_NewPolygon();
