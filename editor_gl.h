@@ -8,7 +8,7 @@ class C_GLEditor : public QGLWidget
 	friend class C_Editor;
 	Q_OBJECT
 	private:
-		static const float m_MouseOverPrecision=0.02f;
+		static const float m_MouseOverPrecision;
 		enum Mode
 		{
 			Insert, Edit
@@ -29,6 +29,7 @@ class C_GLEditor : public QGLWidget
 		void M_PaintDrag();
 
 	signals:
+		void S_SetPos(C_Vertex&, float x, float y);
 		void S_MousePressed(QStandardItem*, float,float);
 		void S_RequestColorDialog(QList<C_Vertex*>);
 	protected:
@@ -43,7 +44,7 @@ class C_GLEditor : public QGLWidget
 	public:
 		C_GLEditor(QWidget* parent, QStandardItem* root);
 		~C_GLEditor();
-		float M_RoundToPrecision(float num, unsigned precision=2);
+		float M_RoundToPrecision(float num, int precision=2);
 		void M_Center();
 		void M_Dump() const;
 		bool M_PointInsideBox(float px, float py, float x1, float y1, float x2, float y2);

@@ -19,9 +19,11 @@ class C_Editor : public QWidget
 		QTreeView* m_List;
 		QList<C_Vertex*> m_VertsToColor;
 		QShortcut* m_Delete;
+		bool m_AutoUpdate;
 	private slots:
 		void S_Center();
 		void S_DeletePoint();
+		void S_SetPos(C_Vertex&, float, float);
 		QStandardItem* S_NewPolygon(const std::string& name="Object");
 		void S_SetActivePoly(const QModelIndex&);
 		void S_AddToList(QStandardItem*, float, float);

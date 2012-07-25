@@ -1,4 +1,5 @@
 #include "filereader.h"
+#include <string>
 
 std::string C_FileReader::M_ReadToStr(const std::string& path)
 {

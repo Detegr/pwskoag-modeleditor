@@ -1,5 +1,12 @@
 #include "editor_gl.h"
 #include <iostream>
+#ifdef _WIN32
+#undef min
+#undef max
+#endif
+#include <algorithm>
+
+const float C_GLEditor::m_MouseOverPrecision=0.02f;
 
 C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
 	QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
@@ -25,7 +32,7 @@ C_GLEditor::~C_GLEditor()
 void C_GLEditor::initializeGL()
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-	glEnable(GL_MULTISAMPLE);
+	//glEnable(GL_MULTISAMPLE);
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -165,6 +172,7 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 	m_LastMousePos=m_LastClick;
 	updateGL();
 }
+#include <assert.h>
 void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 {
 	float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f);
@@ -174,7 +182,8 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 		if(m_Mode==Insert)
 		{
 			m_Drag=false;
-			m_ActivePoly->M_Last().M_SetPos(x,y);
+			emit S_SetPos(m_ActivePoly->M_Last(),x,y);
+			//m_ActivePoly->M_Last().M_SetPos(x,y);
 		}
 		else
 		{
@@ -204,7 +213,8 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 					if(it->M_Selected())
 					{
 						std::pair<float, float> prevPos=it->M_Pos();
-						it->M_SetPos(prevPos.first+(x-lmx),prevPos.second+(y-lmy));
+						emit S_SetPos(*it,prevPos.first+(x-lmx),prevPos.second+(y-lmy));
+						//it->M_SetPos(prevPos.first+(x-lmx),prevPos.second+(y-lmy));
 					}
 				}
 			}
@@ -224,9 +234,25 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 
 void C_GLEditor::mouseReleaseEvent(QMouseEvent* e)
 {
+	float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f);
+	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f);
 	if(m_Mode==Insert)
 	{
+		emit S_SetPos(m_ActivePoly->M_Last(),x,y);
 		m_ActivePoly->M_Last().M_SetSelection(false);
+	}
+	else
+	{
+		for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
+		{
+			float lmx=m_LastMousePos.first;
+			float lmy=m_LastMousePos.second;
+			if(it->M_Selected())
+			{
+				std::pair<float, float> prevPos=it->M_Pos();
+				emit S_SetPos(*it,prevPos.first+(x-lmx),prevPos.second+(y-lmy));
+			}
+		}
 	}
 	if(m_Drag)
 	{
@@ -268,13 +294,13 @@ void C_GLEditor::M_Center()
 	for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
 	{
 		std::pair<float, float> pos=it->M_Pos();
-		it->M_SetPos(pos.first-diffx, pos.second-diffy);
+		emit S_SetPos(*it, pos.first-diffx, pos.second-diffy);
 	}
 	updateGL();
 }
 
-float C_GLEditor::M_RoundToPrecision(float num, unsigned precision)
+float C_GLEditor::M_RoundToPrecision(float num, int precision)
 {
-	unsigned long long m = pow(10, precision);
+	unsigned long long m = pow((float)10, (int)precision);
 	return floor((num * m)+0.5)/m;
 }

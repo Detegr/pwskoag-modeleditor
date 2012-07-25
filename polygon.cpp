@@ -14,6 +14,20 @@ void C_Polygon::M_Add(float x, float y)
 	m_Verts.push_back(C_Vertex(x,y,m_BaseColor,this));
 }
 
+std::pair<QStandardItem*, QStandardItem*> C_Polygon::M_GetItems(const C_Vertex& v) const
+{
+	unsigned i=0;
+	for(std::vector<C_Vertex>::const_iterator it=m_Verts.begin(); it!=m_Verts.end(); ++it, ++i)
+	{
+		if(&(*it) == &v)
+		{
+			QStandardItem* l=m_Root->child(i, 0);
+			QStandardItem* r=m_Root->child(i, 1);
+			return std::make_pair(l,r);
+		}
+	}
+}
+
 QStandardItem* C_Polygon::M_Root() const
 {
 	return m_Root;
@@ -37,26 +51,4 @@ C_Vertex& C_Polygon::M_Last()
 void C_Polygon::M_Delete(unsigned pos)
 {
 	m_Verts.erase(m_Verts.begin()+pos);
-}
-
-void C_Polygon::M_NewPos(const C_Vertex* v, float x, float y)
-{
-	int i=0;
-	for(std::vector<C_Vertex>::iterator it=m_Verts.begin(); it!=m_Verts.end(); ++it, ++i)
-	{
-		if(&(*it) == v)
-		{
-			QStandardItem* l=m_Root->child(i, 0);
-			QStandardItem* r=m_Root->child(i, 1);
-			l->setData(x); r->setData(y);
-			std::stringstream ss;
-			std::string str;
-			ss << x; ss >> str;
-			l->setText(QString(str.c_str()));
-			ss.clear();
-			ss << y; ss >> str;
-			r->setText(QString(str.c_str()));
-			break;
-		}
-	}
 }

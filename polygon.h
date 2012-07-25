@@ -13,7 +13,6 @@ class C_Polygon
 		std::vector<C_Vertex> m_Verts;
 		QColor m_BaseColor;
 
-		void M_NewPos(const C_Vertex* v, float x, float y);
 	public:
 		typedef std::vector<C_Vertex>::iterator iterator;
 		typedef std::vector<C_Vertex>::const_iterator const_iterator;
@@ -30,4 +29,5 @@ class C_Polygon
 		const C_Vertex& M_Vertex(unsigned i) const;
 		void M_Delete(unsigned pos);
 		C_Vertex& M_Last();
+		std::pair<QStandardItem*, QStandardItem*> C_Polygon::M_GetItems(const C_Vertex& v) const;
 };

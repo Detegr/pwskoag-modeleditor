@@ -31,11 +31,13 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	QObject::connect(m_Model, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(S_UpdateList(QStandardItem*)));
 	m_Model->setColumnCount(2);
 	QStandardItem* root = new QStandardItem("Object");
+
 	m_Model->appendRow(root);
 	vb->setAlignment(Qt::AlignTop);
 
 	m_Editor = new C_GLEditor(this, root);
 	QObject::connect(m_Editor, SIGNAL(S_MousePressed(QStandardItem*, float, float)), this, SLOT(S_AddToList(QStandardItem*, float, float)));
+	QObject::connect(m_Editor, SIGNAL(S_SetPos(C_Vertex&, float, float)), this, SLOT(S_SetPos(C_Vertex&, float, float)));
 
 	m_ColorDialog = new QColorDialog(this);
 	m_ColorDialog->hide();
@@ -70,6 +72,7 @@ C_Editor::C_Editor() : m_Editor(NULL)
 
 	setLayout(layout);
 	setMinimumSize(800,600);
+	m_AutoUpdate=true;
 }
 
 void C_Editor::S_OpenColorDialog(QList<C_Vertex*> affectedverts)
@@ -88,6 +91,21 @@ void C_Editor::S_ColorChanged(const QColor& c)
 void C_Editor::S_Center()
 {
 	m_Editor->M_Center();
+}
+
+void C_Editor::S_SetPos(C_Vertex& v, float x, float y)
+{	
+	std::pair<QStandardItem*, QStandardItem*> items=m_Editor->m_ActivePoly->M_GetItems(v);
+	QStandardItem* l=items.first;
+	QStandardItem* r=items.second;
+	QString rs,ls;
+	ls.setNum(x);
+	rs.setNum(y);
+	m_AutoUpdate=false;
+	l->setText(ls);
+	r->setText(rs);
+	v.M_SetPos(x,y);
+	m_AutoUpdate=true;
 }
 
 void C_Editor::S_DeletePoint()
@@ -143,7 +161,7 @@ void C_Editor::S_SetActivePoly(const QModelIndex& index)
 
 void C_Editor::S_UpdateList(QStandardItem* i)
 {
-	if(i->parent()) // Allow renaming of polygon objects
+	if(i->parent() && m_AutoUpdate) // Allow renaming of polygon objects
 	{
 		const std::string& newdatastr=i->text().toStdString();
 		float olddata=i->data().toFloat();
@@ -224,6 +242,7 @@ void C_Editor::S_OpenFile(const QString& path)
 	for(std::vector<std::string>::iterator it=strs.begin(); it!=strs.end(); ++it, ++i)
 	{
 		if(it->find('>')==0)
+
 		{
 			newroot=S_NewPolygon(it->substr(8, std::string::npos));
 			i=0;

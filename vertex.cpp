@@ -13,7 +13,6 @@ void C_Vertex::M_SetColor(const QColor& c)
 void C_Vertex::M_SetPos(float x, float y)
 {
 	this->x=x; this->y=y;
-	m_Parent->M_NewPos(this, x, y);
 }
 
 std::pair<float, float> C_Vertex::M_Pos() const
