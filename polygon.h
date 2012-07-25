@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <vector>
 #include <QtGui/QStandardItem>
 #include <QtGui/QColor>
@@ -27,5 +28,6 @@ class C_Polygon
 		QStandardItem* M_Root() const;
 		C_Vertex& M_Vertex(unsigned i);
 		const C_Vertex& M_Vertex(unsigned i) const;
+		void M_Delete(unsigned pos);
 		C_Vertex& M_Last();
 };

@@ -34,6 +34,11 @@ C_Vertex& C_Polygon::M_Last()
 	return m_Verts.back();
 }
 
+void C_Polygon::M_Delete(unsigned pos)
+{
+	m_Verts.erase(m_Verts.begin()+pos);
+}
+
 void C_Polygon::M_NewPos(const C_Vertex* v, float x, float y)
 {
 	int i=0;

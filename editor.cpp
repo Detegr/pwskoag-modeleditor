@@ -30,7 +30,7 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	m_Model = new QStandardItemModel(this);
 	QObject::connect(m_Model, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(S_UpdateList(QStandardItem*)));
 	m_Model->setColumnCount(2);
-	QStandardItem* root = new QStandardItem("Object 1");
+	QStandardItem* root = new QStandardItem("Object");
 	m_Model->appendRow(root);
 	vb->setAlignment(Qt::AlignTop);
 
@@ -66,6 +66,8 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	m_Delete = new QShortcut(QKeySequence(tr("Delete")), this);
 	QObject::connect(m_Delete, SIGNAL(activated()), this, SLOT(S_DeletePoint()));
 
+	m_SelectedItem=NULL;
+
 	setLayout(layout);
 	setMinimumSize(800,600);
 }
@@ -90,7 +92,33 @@ void C_Editor::S_Center()
 
 void C_Editor::S_DeletePoint()
 {
-	m_Model->removeRows(m_SelectedItem->row());
+	if(m_SelectedItem)
+	{
+		int row=m_SelectedItem->row();
+		if(!m_SelectedItem->parent())
+		{
+			C_Polygon* poly=m_Editor->m_Polygons [m_SelectedItem->row()];
+			m_Editor->m_Polygons.erase(m_Editor->m_Polygons.begin()+m_SelectedItem->row());
+			delete poly;
+			m_Editor->m_ActivePoly=m_Editor->m_Polygons.back();
+			m_Model->removeRows(m_SelectedItem->row(), 1, m_Model->indexFromItem(m_SelectedItem->parent()));
+			QStandardItem* newchild;
+			do newchild=m_Model->invisibleRootItem()->child(row--); while(!newchild && row>=0);
+			m_SelectedItem=newchild;
+		}
+		else
+		{
+			m_Editor->m_Polygons[m_SelectedItem->parent()->row()]->M_Delete(m_SelectedItem->row());
+			QStandardItem* parent=m_SelectedItem->parent();
+			m_Model->removeRows(m_SelectedItem->row(), 1, m_Model->indexFromItem(m_SelectedItem->parent()));
+			QStandardItem* newchild;
+			do newchild=parent->child(row--); while(!newchild && row>=0);
+			if(!newchild) newchild=parent;
+			m_SelectedItem=newchild;
+		}
+		if(!m_Model->hasChildren()) S_NewPolygon();
+		m_Editor->updateGL();
+	}
 }
 
 QStandardItem* C_Editor::S_NewPolygon(const std::string& name)
