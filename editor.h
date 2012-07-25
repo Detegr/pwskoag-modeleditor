@@ -8,6 +8,7 @@ class C_Editor : public QWidget
 		C_GLEditor* m_Editor;
 		QMenuBar* m_Menu;
 		QStandardItemModel* m_Model;
+		QStandardItem* m_SelectedItem;
 		QHeaderView* m_HeaderView;
 		QPushButton* m_Center;
 		QPushButton* m_New;
@@ -20,7 +21,9 @@ class C_Editor : public QWidget
 		QShortcut* m_Delete;
 	private slots:
 		void S_Center();
-		void S_NewPolygon();
+		void S_DeletePoint();
+		QStandardItem* S_NewPolygon(const std::string& name="Object");
+		void S_SetActivePoly(const QModelIndex&);
 		void S_AddToList(QStandardItem*, float, float);
 		void S_UpdateList(QStandardItem* i);
 		void S_SetInsertMode();

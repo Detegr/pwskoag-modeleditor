@@ -13,7 +13,7 @@ class C_GLEditor : public QGLWidget
 		{
 			Insert, Edit
 		};
-		std::vector<C_Polygon> m_Polygons;
+		std::vector<C_Polygon*> m_Polygons;
 		C_Polygon* m_ActivePoly;
 		Mode m_Mode;
 		static const unsigned m_GridSize=20;
@@ -42,7 +42,7 @@ class C_GLEditor : public QGLWidget
 		bool M_MouseOverVertex(float, float, const C_Vertex& v);
 	public:
 		C_GLEditor(QWidget* parent, QStandardItem* root);
-		~C_GLEditor() {}
+		~C_GLEditor();
 		float M_RoundToPrecision(float num, unsigned precision=2);
 		void M_Center();
 		void M_Dump() const;
