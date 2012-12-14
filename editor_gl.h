@@ -13,9 +13,18 @@ class C_GLEditor : public QGLWidget
 		{
 			Insert, Edit
 		};
+
+		enum DrawMode
+		{
+			Polygon=GL_TRIANGLE_STRIP,
+			LineStrip=GL_LINE_STRIP,
+			LineLoop=GL_LINE_LOOP
+		};
+
 		std::vector<C_Polygon*> m_Polygons;
 		C_Polygon* m_ActivePoly;
 		Mode m_Mode;
+		DrawMode m_DrawMode;
 		static const unsigned m_GridSize=20;
 		float m_Grid[m_GridSize];
 		std::pair<float, float> m_LastClick;

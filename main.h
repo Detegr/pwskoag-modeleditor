@@ -45,6 +45,28 @@ class C_Main : public QMainWindow
 			QObject::connect(quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 			quit->setShortcuts(QKeySequence::Quit);
 
+			QMenu* modebar=menuBar()->addMenu(tr("&Display mode"));
+			QAction* poly=new QAction(tr("&Polygon"), this);
+			QAction* linestrip=new QAction(tr("Line &strip"), this);
+			QAction* lineloop=new QAction(tr("Line &loop"), this);
+
+			QActionGroup* modegroup=new QActionGroup(this);
+
+			poly->setActionGroup(modegroup);
+			lineloop->setActionGroup(modegroup);
+			linestrip->setActionGroup(modegroup);
+
+			poly->setCheckable(true);
+			linestrip->setCheckable(true);
+			lineloop->setCheckable(true);
+			lineloop->setChecked(true);
+
+			QObject::connect(modegroup, SIGNAL(triggered(QAction*)), c, SLOT(S_ModeChanged(QAction*)));
+
+			modebar->addAction(poly);
+			modebar->addAction(linestrip);
+			modebar->addAction(lineloop);
+
 			bar->addAction(open);
 			bar->addAction(save);
 			bar->addAction(quit);

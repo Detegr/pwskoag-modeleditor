@@ -18,6 +18,7 @@ C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
 		m_Grid[i]=-1.0+f;
 	}
 	m_Mode=Insert;
+	m_DrawMode=LineLoop;
 	m_Drag=false;
 	m_ActivePoly=m_Polygons.back();
 }
@@ -60,7 +61,7 @@ void C_GLEditor::M_PaintGrid()
 }
 void C_GLEditor::M_PaintPolygon(const C_Polygon& p)
 {
-	glBegin(GL_TRIANGLE_STRIP);
+	glBegin(m_DrawMode);
 	for(C_Polygon::const_iterator it=p.begin(); it!=p.end(); ++it)
 	{
 		std::pair<float, float> pos=it->M_Pos();

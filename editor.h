@@ -34,6 +34,7 @@ class C_Editor : public QWidget
 		void S_ColorChanged(const QColor&);
 		void S_OpenFile(const QString&);
 		void S_SaveFile(const QString& path);
+		void S_ModeChanged(QAction* a);
 	public:
 		C_Editor();
 };

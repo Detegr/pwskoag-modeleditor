@@ -275,3 +275,11 @@ void C_Editor::S_SaveFile(const QString& path)
 	}
 	out.close();
 }
+
+void C_Editor::S_ModeChanged(QAction* a)
+{
+	if(a->text() == tr("&Polygon")) m_Editor->m_DrawMode=C_GLEditor::Polygon;
+	else if(a->text() == tr("Line &strip"))	m_Editor->m_DrawMode=C_GLEditor::LineStrip;
+	else if(a->text() == tr("Line &loop"))	m_Editor->m_DrawMode=C_GLEditor::LineLoop;
+	m_Editor->updateGL();
+}
