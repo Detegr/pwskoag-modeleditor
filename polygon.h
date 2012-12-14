@@ -29,5 +29,5 @@ class C_Polygon
 		const C_Vertex& M_Vertex(unsigned i) const;
 		void M_Delete(unsigned pos);
 		C_Vertex& M_Last();
-		std::pair<QStandardItem*, QStandardItem*> C_Polygon::M_GetItems(const C_Vertex& v) const;
+		std::pair<QStandardItem*, QStandardItem*> M_GetItems(const C_Vertex& v) const;
 };
