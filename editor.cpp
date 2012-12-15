@@ -36,7 +36,7 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	vb->setAlignment(Qt::AlignTop);
 
 	m_Editor = new C_GLEditor(this, root);
-	QObject::connect(m_Editor, SIGNAL(S_MousePressed(QStandardItem*, float, float)), this, SLOT(S_AddToList(QStandardItem*, float, float)));
+	QObject::connect(m_Editor, SIGNAL(S_MousePressed(QStandardItem*, float, float, int)), this, SLOT(S_AddToList(QStandardItem*, float, float, int)));
 	QObject::connect(m_Editor, SIGNAL(S_SetPos(C_Vertex&, float, float)), this, SLOT(S_SetPos(C_Vertex&, float, float)));
 
 	m_ColorDialog = new QColorDialog(this);
@@ -205,7 +205,7 @@ void C_Editor::S_UpdateList(QStandardItem* i)
 	}
 }
 
-void C_Editor::S_AddToList(QStandardItem* obj, float x, float y)
+void C_Editor::S_AddToList(QStandardItem* obj, float x, float y, int pos)
 {
 	QString f,s;
 	f.setNum(x);
@@ -215,7 +215,7 @@ void C_Editor::S_AddToList(QStandardItem* obj, float x, float y)
 	QStandardItem* iy = new QStandardItem(s);
 	iy->setData(QVariant(y));
 	obj->appendRow(QList<QStandardItem*>() << ix << iy);
-	m_Editor->m_ActivePoly->M_Add(x,y);
+	m_Editor->m_ActivePoly->M_Add(x,y,pos);
 }
 
 void C_Editor::S_SetInsertMode()
@@ -265,7 +265,7 @@ void C_Editor::S_OpenFile(const QString& path)
 		ss >> y;
 		ss.clear();
 		assert(newroot!=NULL);
-		S_AddToList(newroot,x,y);
+		S_AddToList(newroot,x,y,-1);
 	}
 	m_Editor->updateGL();
 }
@@ -308,4 +308,8 @@ void C_Editor::keyReleaseEvent(QKeyEvent* e)
 	{
 		m_Editor->M_SetPrecision(2);
 	}
+}
+void C_Editor::S_Split()
+{
+	m_Editor->M_Split();
 }

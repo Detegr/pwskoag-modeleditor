@@ -23,7 +23,7 @@ class C_Polygon
 		C_Polygon(QStandardItem* root);
 		C_Polygon(QStandardItem* root, const QColor& bc);
 
-		void M_Add(float x, float y);
+		void M_Add(float x, float y, int pos);
 		QStandardItem* M_Root() const;
 		C_Vertex& M_Vertex(unsigned i);
 		const C_Vertex& M_Vertex(unsigned i) const;

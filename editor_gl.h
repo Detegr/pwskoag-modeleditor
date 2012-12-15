@@ -1,3 +1,5 @@
+#pragma once
+
 #include <QtGui/QtGui>
 #include <QGLWidget>
 #include <vector>
@@ -39,9 +41,12 @@ class C_GLEditor : public QGLWidget
 
 		unsigned int m_PointPrecision;
 
+		C_Vertex* m_SplitFirst;
+		C_Vertex* m_SplitSecond;
+
 	signals:
 		void S_SetPos(C_Vertex&, float x, float y);
-		void S_MousePressed(QStandardItem*, float,float);
+		void S_MousePressed(QStandardItem*, float,float,int);
 		void S_RequestColorDialog(QList<C_Vertex*>);
 	protected:
 		void initializeGL();
@@ -60,4 +65,5 @@ class C_GLEditor : public QGLWidget
 		void M_Dump() const;
 		bool M_PointInsideBox(float px, float py, float x1, float y1, float x2, float y2);
 		void M_SetPrecision(unsigned int p) { m_PointPrecision=p; }
+		void M_Split();
 };

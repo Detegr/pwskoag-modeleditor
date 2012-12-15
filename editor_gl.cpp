@@ -1,4 +1,5 @@
 #include "editor_gl.h"
+#include "editor.h"
 #include <iostream>
 #ifdef _WIN32
 #undef min
@@ -22,6 +23,7 @@ C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
 	m_Drag=false;
 	m_ActivePoly=m_Polygons.back();
 	m_PointPrecision=2;
+	m_SplitFirst=m_SplitSecond=NULL;
 }
 C_GLEditor::~C_GLEditor()
 {
@@ -135,7 +137,7 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f, m_PointPrecision);
 	if(m_Mode==Insert)
 	{
-		emit S_MousePressed(m_ActivePoly->M_Root(),x,y);
+		emit S_MousePressed(m_ActivePoly->M_Root(),x,y,-1);
 		m_Drag=false;
 		for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
 		{
@@ -170,9 +172,41 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 			}
 		}
 	}
+	m_SplitFirst=m_SplitSecond=NULL;
 	m_LastClick=std::make_pair(x,y);
 	m_LastMousePos=m_LastClick;
 	updateGL();
+}
+
+void C_GLEditor::M_Split()
+{
+	if(m_SplitFirst && m_SplitSecond)
+	{
+		std::pair<float,float> fpos=m_SplitFirst->M_Pos();
+		std::pair<float,float> spos=m_SplitSecond->M_Pos();
+
+		float avgx = (fpos.first+spos.first) / 2;
+		float avgy = (fpos.second+spos.second) / 2;
+
+
+		int pos=0;
+		int i=0;
+		for(C_Polygon::iterator itt=m_ActivePoly->begin(); itt!=m_ActivePoly->end(); ++itt, ++i)
+		{
+			itt->M_SetSelection(false);
+			if(&*itt == m_SplitFirst)
+			{
+				pos=i+1;
+			}
+		}
+
+		Mode tmp=m_Mode;
+		m_Mode=Insert;
+		emit S_MousePressed(m_ActivePoly->M_Root(),avgx,avgy,pos);
+		m_Mode=tmp;
+		updateGL();
+	}
+	m_SplitFirst=m_SplitSecond=NULL;
 }
 
 void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
@@ -198,14 +232,33 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 				m_DragPoints[1]=std::max(m_LastClick.first, x);
 				m_DragPoints[2]=std::min(m_LastClick.second, y);
 				m_DragPoints[3]=std::max(m_LastClick.second, y);
+
+				int selected=0;
 				for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
 				{
 					std::pair<float, float> pos=it->M_Pos();
 					if(M_PointInsideBox(pos.first, pos.second, m_DragPoints[0], m_DragPoints[2], m_DragPoints[1], m_DragPoints[3]))
 					{
 						it->M_SetSelection(true);
+						selected++;
+						if(selected==1) m_SplitFirst=&(*it);
+						else if(selected==2) m_SplitSecond=&(*it);
+						else if(selected>2) m_SplitFirst=m_SplitSecond=NULL;
 					}
-					else it->M_SetSelection(false);
+					else
+					{
+						selected=0;
+						it->M_SetSelection(false);
+					}
+				}
+				if(!(m_SplitFirst && m_SplitSecond) && (*m_ActivePoly->begin()).M_Selected() && (m_ActivePoly->M_Last().M_Selected()))
+				{
+					m_SplitFirst = &m_ActivePoly->M_Last();
+					m_SplitSecond = &*m_ActivePoly->begin();
+				}
+				else if(m_SplitFirst == &*(m_ActivePoly->end()-2) && m_SplitSecond == &*(m_ActivePoly->end()-1) && m_ActivePoly->begin()->M_Selected())
+				{
+					m_SplitFirst=m_SplitSecond=NULL;
 				}
 			}
 			else
@@ -215,7 +268,11 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 					if(it->M_Selected())
 					{
 						std::pair<float, float> prevPos=it->M_Pos();
-						emit S_SetPos(*it,prevPos.first+(x-lmx),prevPos.second+(y-lmy));
+						emit S_SetPos(
+								*it,
+								M_RoundToPrecision(prevPos.first+(x-lmx), m_PointPrecision),
+								M_RoundToPrecision(prevPos.second+(y-lmy), m_PointPrecision)
+						);
 						//it->M_SetPos(prevPos.first+(x-lmx),prevPos.second+(y-lmy));
 					}
 				}
@@ -245,6 +302,8 @@ void C_GLEditor::mouseReleaseEvent(QMouseEvent* e)
 	}
 	else
 	{
+		// Can't remember what this was for...caused some strange problems after m_Drag.
+		/*
 		for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
 		{
 			float lmx=m_LastMousePos.first;
@@ -255,15 +314,17 @@ void C_GLEditor::mouseReleaseEvent(QMouseEvent* e)
 				emit S_SetPos(*it,prevPos.first+(x-lmx),prevPos.second+(y-lmy));
 			}
 		}
+		*/
 	}
 	if(m_Drag)
 	{
 		for(unsigned i=0; i<4; ++i) m_DragPoints[i]=0.0f;
 		updateGL();
 	}
+	emit ((C_Editor*)parentWidget())->S_SplitPossible((m_SplitFirst&&m_SplitSecond));
 }
 
-void C_GLEditor::mouseDoubleClickEvent(QMouseEvent* e)
+void C_GLEditor::mouseDoubleClickEvent(QMouseEvent*)
 {
 	QList<C_Vertex*> ql;
 	for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
@@ -303,6 +364,6 @@ void C_GLEditor::M_Center()
 
 float C_GLEditor::M_RoundToPrecision(float num, int precision)
 {
-	long double m = pow((float)10, precision);
-	return floor((num * m)+0.5)/m;
+	unsigned long long m = pow((float)10, precision);
+	return floor((num * m)+0.5f)/m;
 }

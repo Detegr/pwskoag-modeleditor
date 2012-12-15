@@ -45,6 +45,7 @@ class C_Main : public QMainWindow
 			QObject::connect(quit, SIGNAL(triggered()), qApp, SLOT(quit()));
 			quit->setShortcuts(QKeySequence::Quit);
 
+
 			QMenu* modebar=menuBar()->addMenu(tr("&Display mode"));
 			QAction* poly=new QAction(tr("&Polygon"), this);
 			QAction* linestrip=new QAction(tr("Line &strip"), this);
@@ -66,6 +67,13 @@ class C_Main : public QMainWindow
 			modebar->addAction(poly);
 			modebar->addAction(linestrip);
 			modebar->addAction(lineloop);
+
+			QMenu* editbar=menuBar()->addMenu(tr("&Edit"));
+			QAction* split=new QAction(tr("&Split selection"), this);
+			QObject::connect(c, SIGNAL(S_SplitPossible(bool)), split, SLOT(setEnabled(bool)));
+			QObject::connect(split, SIGNAL(triggered()), c, SLOT(S_Split()));
+			split->setEnabled(false);
+			editbar->addAction(split);
 
 			bar->addAction(open);
 			bar->addAction(save);

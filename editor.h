@@ -1,8 +1,11 @@
+#pragma once
+
 #include <QtGui/QtGui>
 #include "editor_gl.h"
 
 class C_Editor : public QWidget
 {
+	friend class C_GLEditor;
 	Q_OBJECT
 	private:
 		C_GLEditor* m_Editor;
@@ -26,7 +29,7 @@ class C_Editor : public QWidget
 		void S_SetPos(C_Vertex&, float, float);
 		QStandardItem* S_NewPolygon(const std::string& name="Object");
 		void S_SetActivePoly(const QModelIndex&);
-		void S_AddToList(QStandardItem*, float, float);
+		void S_AddToList(QStandardItem*, float, float, int);
 		void S_UpdateList(QStandardItem* i);
 		void S_SetInsertMode();
 		void S_SetEditMode();
@@ -35,9 +38,13 @@ class C_Editor : public QWidget
 		void S_OpenFile(const QString&);
 		void S_SaveFile(const QString& path);
 		void S_ModeChanged(QAction* a);
+	signals:
+		void S_SplitPossible(bool b);
 	protected:
 		void keyPressEvent(QKeyEvent* e);
 		void keyReleaseEvent(QKeyEvent* e);
+	public slots:
+		void S_Split();
 	public:
 		C_Editor();
 };

@@ -9,9 +9,16 @@ C_Polygon::C_Polygon(QStandardItem* root) :
 
 C_Polygon::C_Polygon(QStandardItem* root, const QColor& bc) : m_Root(root), m_BaseColor(bc) {}
 
-void C_Polygon::M_Add(float x, float y)
+void C_Polygon::M_Add(float x, float y, int pos)
 {
-	m_Verts.push_back(C_Vertex(x,y,m_BaseColor,this));
+	if(pos == -1)
+	{
+		m_Verts.push_back(C_Vertex(x,y,m_BaseColor,this));
+	}
+	else
+	{
+		m_Verts.insert(m_Verts.begin()+pos, C_Vertex(x,y,m_BaseColor,this));
+	}
 }
 
 std::pair<QStandardItem*, QStandardItem*> C_Polygon::M_GetItems(const C_Vertex& v) const
