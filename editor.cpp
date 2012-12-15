@@ -73,6 +73,7 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	setLayout(layout);
 	setMinimumSize(800,600);
 	m_AutoUpdate=true;
+
 }
 
 void C_Editor::S_OpenColorDialog(QList<C_Vertex*> affectedverts)
@@ -282,4 +283,20 @@ void C_Editor::S_ModeChanged(QAction* a)
 	else if(a->text() == tr("Line &strip"))	m_Editor->m_DrawMode=C_GLEditor::LineStrip;
 	else if(a->text() == tr("Line &loop"))	m_Editor->m_DrawMode=C_GLEditor::LineLoop;
 	m_Editor->updateGL();
+}
+
+
+void C_Editor::keyPressEvent(QKeyEvent* e)
+{
+	if(e->key() == Qt::Key_Shift)
+	{
+		m_Editor->M_SetPrecision(1);
+	}
+}
+void C_Editor::keyReleaseEvent(QKeyEvent* e)
+{
+	if(e->key() == Qt::Key_Shift)
+	{
+		m_Editor->M_SetPrecision(2);
+	}
 }

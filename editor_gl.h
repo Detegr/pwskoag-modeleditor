@@ -37,6 +37,8 @@ class C_GLEditor : public QGLWidget
 		void M_PaintPoints(const C_Polygon& p);
 		void M_PaintDrag();
 
+		unsigned int m_PointPrecision;
+
 	signals:
 		void S_SetPos(C_Vertex&, float x, float y);
 		void S_MousePressed(QStandardItem*, float,float);
@@ -57,4 +59,5 @@ class C_GLEditor : public QGLWidget
 		void M_Center();
 		void M_Dump() const;
 		bool M_PointInsideBox(float px, float py, float x1, float y1, float x2, float y2);
+		void M_SetPrecision(unsigned int p) { m_PointPrecision=p; }
 };

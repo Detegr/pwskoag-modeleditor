@@ -21,6 +21,7 @@ C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
 	m_DrawMode=LineLoop;
 	m_Drag=false;
 	m_ActivePoly=m_Polygons.back();
+	m_PointPrecision=2;
 }
 C_GLEditor::~C_GLEditor()
 {
@@ -130,8 +131,8 @@ bool C_GLEditor::M_MouseOverVertex(float x, float y, const C_Vertex& v)
 
 void C_GLEditor::mousePressEvent(QMouseEvent* e)
 {
-	float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f);
-	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f);
+	float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f, m_PointPrecision);
+	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f, m_PointPrecision);
 	if(m_Mode==Insert)
 	{
 		emit S_MousePressed(m_ActivePoly->M_Root(),x,y);
@@ -173,11 +174,11 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 	m_LastMousePos=m_LastClick;
 	updateGL();
 }
-#include <assert.h>
+
 void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 {
-	float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f);
-	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f);
+	float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f, m_PointPrecision);
+	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f, m_PointPrecision);
 	if(e->buttons() & Qt::LeftButton)
 	{
 		if(m_Mode==Insert)
@@ -235,8 +236,8 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 
 void C_GLEditor::mouseReleaseEvent(QMouseEvent* e)
 {
-	float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f);
-	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f);
+	float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f, m_PointPrecision);
+	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f, m_PointPrecision);
 	if(m_Mode==Insert)
 	{
 		emit S_SetPos(m_ActivePoly->M_Last(),x,y);
@@ -302,6 +303,6 @@ void C_GLEditor::M_Center()
 
 float C_GLEditor::M_RoundToPrecision(float num, int precision)
 {
-	unsigned long long m = pow((float)10, (int)precision);
+	long double m = pow((float)10, precision);
 	return floor((num * m)+0.5)/m;
 }

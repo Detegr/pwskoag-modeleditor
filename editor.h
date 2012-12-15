@@ -35,6 +35,9 @@ class C_Editor : public QWidget
 		void S_OpenFile(const QString&);
 		void S_SaveFile(const QString& path);
 		void S_ModeChanged(QAction* a);
+	protected:
+		void keyPressEvent(QKeyEvent* e);
+		void keyReleaseEvent(QKeyEvent* e);
 	public:
 		C_Editor();
 };
