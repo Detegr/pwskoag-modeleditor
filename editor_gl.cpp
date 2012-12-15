@@ -234,11 +234,14 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 				m_DragPoints[3]=std::max(m_LastClick.second, y);
 
 				int selected=0;
-				for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
+				int selectedsum=0;
+				int vertexcount=0;
+				for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it, ++vertexcount)
 				{
 					std::pair<float, float> pos=it->M_Pos();
 					if(M_PointInsideBox(pos.first, pos.second, m_DragPoints[0], m_DragPoints[2], m_DragPoints[1], m_DragPoints[3]))
 					{
+						++selectedsum;
 						it->M_SetSelection(true);
 						selected++;
 						if(selected==1) m_SplitFirst=&(*it);
@@ -251,14 +254,16 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 						it->M_SetSelection(false);
 					}
 				}
-				if(!(m_SplitFirst && m_SplitSecond) && (*m_ActivePoly->begin()).M_Selected() && (m_ActivePoly->M_Last().M_Selected()))
+
+				if(m_SplitFirst == &*(m_ActivePoly->end()-2) && m_SplitSecond == &*(m_ActivePoly->end()-1) && m_ActivePoly->begin()->M_Selected()
+					|| selectedsum == vertexcount)
+				{
+					m_SplitFirst=m_SplitSecond=NULL;
+				}
+				else if(!(m_SplitFirst && m_SplitSecond) && (*m_ActivePoly->begin()).M_Selected() && (m_ActivePoly->M_Last().M_Selected()))
 				{
 					m_SplitFirst = &m_ActivePoly->M_Last();
 					m_SplitSecond = &*m_ActivePoly->begin();
-				}
-				else if(m_SplitFirst == &*(m_ActivePoly->end()-2) && m_SplitSecond == &*(m_ActivePoly->end()-1) && m_ActivePoly->begin()->M_Selected())
-				{
-					m_SplitFirst=m_SplitSecond=NULL;
 				}
 			}
 			else
