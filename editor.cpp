@@ -116,14 +116,23 @@ void C_Editor::S_DeletePoint()
 		int row=m_SelectedItem->row();
 		if(!m_SelectedItem->parent())
 		{
-			C_Polygon* poly=m_Editor->m_Polygons [m_SelectedItem->row()];
-			m_Editor->m_Polygons.erase(m_Editor->m_Polygons.begin()+m_SelectedItem->row());
-			delete poly;
-			m_Editor->m_ActivePoly=m_Editor->m_Polygons.back();
-			m_Model->removeRows(m_SelectedItem->row(), 1, m_Model->indexFromItem(m_SelectedItem->parent()));
-			QStandardItem* newchild;
-			do newchild=m_Model->invisibleRootItem()->child(row--); while(!newchild && row>=0);
-			m_SelectedItem=newchild;
+			QMessageBox msg;
+			msg.setText("This will delete the whole polygon. Are you sure?");
+			msg.setStandardButtons(QMessageBox::Ok|QMessageBox::Cancel);
+			msg.setDefaultButton(QMessageBox::Ok);
+			int ret=msg.exec();
+			if(ret==QMessageBox::Ok)
+			{
+				C_Polygon* poly=m_Editor->m_Polygons [m_SelectedItem->row()];
+				m_Editor->m_Polygons.erase(m_Editor->m_Polygons.begin()+m_SelectedItem->row());
+				delete poly;
+				m_Editor->m_ActivePoly=m_Editor->m_Polygons.back();
+				m_Model->removeRows(m_SelectedItem->row(), 1, m_Model->indexFromItem(m_SelectedItem->parent()));
+				QStandardItem* newchild;
+				do newchild=m_Model->invisibleRootItem()->child(row--); while(!newchild && row>=0);
+				m_SelectedItem=newchild;
+			}
+			else return;
 		}
 		else
 		{
