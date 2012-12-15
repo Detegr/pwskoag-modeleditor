@@ -288,14 +288,14 @@ void C_Editor::S_ModeChanged(QAction* a)
 
 void C_Editor::keyPressEvent(QKeyEvent* e)
 {
-	if(e->key() == Qt::Key_Shift)
+	if(e->key() == Qt::Key_Control)
 	{
 		m_Editor->M_SetPrecision(1);
 	}
 }
 void C_Editor::keyReleaseEvent(QKeyEvent* e)
 {
-	if(e->key() == Qt::Key_Shift)
+	if(e->key() == Qt::Key_Control)
 	{
 		m_Editor->M_SetPrecision(2);
 	}
