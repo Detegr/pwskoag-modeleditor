@@ -8,7 +8,6 @@ class C_Main : public QMainWindow
 	private:
 		QFileDialog* m_Open;
 		QFileDialog* m_Save;
-		QShortcut* m_Split;
 	private slots:
 		void S_OpenDialog()
 		{
@@ -76,7 +75,6 @@ class C_Main : public QMainWindow
 			split->setEnabled(false);
 			editbar->addAction(split);
 
-			m_Split = new QShortcut(QKeySequence(tr("Ctrl+X")), this);
 			split->setShortcut(QKeySequence(tr("Ctrl+X")));
 
 			bar->addAction(open);
