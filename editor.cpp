@@ -299,14 +299,14 @@ void C_Editor::keyPressEvent(QKeyEvent* e)
 {
 	if(e->key() == Qt::Key_Control)
 	{
-		m_Editor->M_SetPrecision(1);
+		m_Editor->M_SetPrecision(0.05f);
 	}
 }
 void C_Editor::keyReleaseEvent(QKeyEvent* e)
 {
 	if(e->key() == Qt::Key_Control)
 	{
-		m_Editor->M_SetPrecision(2);
+		m_Editor->M_SetPrecision(0.01f);
 	}
 }
 void C_Editor::S_Split()

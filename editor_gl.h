@@ -39,7 +39,7 @@ class C_GLEditor : public QGLWidget
 		void M_PaintPoints(const C_Polygon& p);
 		void M_PaintDrag();
 
-		unsigned int m_PointPrecision;
+		float m_PointPrecision;
 
 		C_Vertex* m_SplitFirst;
 		C_Vertex* m_SplitSecond;
@@ -60,10 +60,10 @@ class C_GLEditor : public QGLWidget
 	public:
 		C_GLEditor(QWidget* parent, QStandardItem* root);
 		~C_GLEditor();
-		float M_RoundToPrecision(float num, int precision=2);
+		float M_RoundToPrecision(float num, float precision=0.01f);
 		void M_Center();
 		void M_Dump() const;
 		bool M_PointInsideBox(float px, float py, float x1, float y1, float x2, float y2);
-		void M_SetPrecision(unsigned int p) { m_PointPrecision=p; }
+		void M_SetPrecision(float p) { m_PointPrecision=p; }
 		void M_Split();
 };

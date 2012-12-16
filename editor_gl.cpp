@@ -22,7 +22,7 @@ C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
 	m_DrawMode=LineLoop;
 	m_Drag=false;
 	m_ActivePoly=m_Polygons.back();
-	m_PointPrecision=2;
+	m_PointPrecision=0.01f;
 	m_SplitFirst=m_SplitSecond=NULL;
 }
 C_GLEditor::~C_GLEditor()
@@ -273,17 +273,20 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 					if(it->M_Selected())
 					{
 						std::pair<float, float> prevPos=it->M_Pos();
-						//emit S_SetPos(
-						//		*it,
-						//		M_RoundToPrecision(prevPos.first+(x-lmx), m_PointPrecision),
-						//		M_RoundToPrecision(prevPos.second+(y-lmy), m_PointPrecision)
-						//);
-						emit S_SetPos(
+						if(M_MouseOverVertex(x,y,*it))
+						{
+							emit S_SetPos(
+									*it,
+									M_RoundToPrecision(prevPos.first+(x-lmx), m_PointPrecision),
+									M_RoundToPrecision(prevPos.second+(y-lmy), m_PointPrecision));
+						}
+						else
+						{
+							emit S_SetPos(
 								*it,
 								prevPos.first+(x-lmx),
-								prevPos.second+(y-lmy)
-						);
-						//it->M_SetPos(prevPos.first+(x-lmx),prevPos.second+(y-lmy));
+								prevPos.second+(y-lmy));
+						}
 					}
 				}
 			}
@@ -371,9 +374,12 @@ void C_GLEditor::M_Center()
 	}
 	updateGL();
 }
-
-float C_GLEditor::M_RoundToPrecision(float num, int precision)
+#include <assert.h>
+float C_GLEditor::M_RoundToPrecision(float num, float precision)
 {
-	unsigned long long m = pow((float)10, precision);
-	return floor((num * m)+0.5f)/m;
+	if(num>0.5f)
+	{
+		return ((int)floor(num / precision))*precision;
+	}
+	else return ((int)ceil(num / precision))*precision;
 }
