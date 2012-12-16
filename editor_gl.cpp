@@ -116,12 +116,13 @@ void C_GLEditor::paintGL()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
-	M_PaintGrid();
+	if(m_DrawMode == Polygon) M_PaintGrid();
 	for(std::vector<C_Polygon*>::iterator it=m_Polygons.begin(); it!=m_Polygons.end(); ++it)
 	{
 		M_PaintPolygon(**it);
 		M_PaintPoints(**it);
 	}
+	if(m_DrawMode == LineStrip || m_DrawMode == LineLoop) M_PaintGrid();
 	if(m_Drag) M_PaintDrag();
 }
 
