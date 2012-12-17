@@ -6,6 +6,27 @@
 
 C_Editor::C_Editor() : m_Editor(NULL)
 {
+	m_Init();
+}
+
+void C_Editor::m_Init()
+{
+	m_Open=new QFileDialog(this);
+	m_Open->setNameFilter("*.2dmodel");
+	m_Open->setAcceptMode(QFileDialog::AcceptOpen);
+	m_Open->setFileMode(QFileDialog::ExistingFile);
+	m_Open->setOption(QFileDialog::DontUseNativeDialog);
+	QObject::connect(m_Open, SIGNAL(fileSelected(const QString&)), this, SLOT(S_OpenFile(const QString&)));
+	m_Save=new QFileDialog(this);
+	m_Save->setFileMode(QFileDialog::AnyFile);
+	m_Save->setAcceptMode(QFileDialog::AcceptSave);
+	m_Save->setDefaultSuffix("2dmodel");
+	m_Save->setNameFilter("*.2dmodel");
+	m_Save->setConfirmOverwrite(true);
+	m_Save->setOption(QFileDialog::DontUseNativeDialog);
+	QObject::connect(m_Save, SIGNAL(fileSelected(const QString&)), this, SLOT(S_SaveFile(const QString&)));
+	QObject::connect(this, SIGNAL(S_SaveAs()), this, SLOT(S_SaveDialog()));
+
 	m_Center = new QPushButton(tr("Center"), this);
 	QObject::connect(m_Center, SIGNAL(clicked()), this, SLOT(S_Center()));
 	m_New = new QPushButton(tr("New polygon"), this);
@@ -75,8 +96,10 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	m_AutoUpdate=true;
 
 }
-C_Editor::C_Editor(const QString& openwith) : C_Editor()
+
+C_Editor::C_Editor(const QString& openwith)
 {
+	m_Init();
 	S_OpenFile(openwith);
 }
 
@@ -272,6 +295,8 @@ void C_Editor::S_OpenFile(const QString& path)
 		S_AddToList(newroot,x,y,-1);
 	}
 	m_Editor->updateGL();
+	m_EditedFile=QDir(path);
+	m_EditedFile.makeAbsolute();
 }
 
 void C_Editor::S_SaveFile(const QString& path)
@@ -288,6 +313,12 @@ void C_Editor::S_SaveFile(const QString& path)
 		}
 	}
 	out.close();
+}
+
+void C_Editor::S_SaveOrSaveAs()
+{
+	if(m_EditedFile.path().length() > 1) S_SaveFile(m_EditedFile.path());
+	else emit S_SaveAs();
 }
 
 void C_Editor::S_ModeChanged(QAction* a)

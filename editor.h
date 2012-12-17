@@ -9,6 +9,8 @@ class C_Editor : public QWidget
 	Q_OBJECT
 	private:
 		C_GLEditor* m_Editor;
+		QFileDialog* m_Open;
+		QFileDialog* m_Save;
 		QMenuBar* m_Menu;
 		QStandardItemModel* m_Model;
 		QStandardItem* m_SelectedItem;
@@ -23,6 +25,9 @@ class C_Editor : public QWidget
 		QList<C_Vertex*> m_VertsToColor;
 		QShortcut* m_Delete;
 		bool m_AutoUpdate;
+		QDir m_EditedFile;
+
+		void m_Init();
 	private slots:
 		void S_Center();
 		void S_DeletePoint();
@@ -37,9 +42,19 @@ class C_Editor : public QWidget
 		void S_ColorChanged(const QColor&);
 		void S_OpenFile(const QString&);
 		void S_SaveFile(const QString& path);
+		void S_SaveOrSaveAs();
 		void S_ModeChanged(QAction* a);
+		void S_OpenDialog()
+		{
+			m_Open->setVisible(true);
+		}
+		void S_SaveDialog()
+		{
+			m_Save->setVisible(true);
+		}
 	signals:
 		void S_SplitPossible(bool b);
+		void S_SaveAs();
 	protected:
 		void keyPressEvent(QKeyEvent* e);
 		void keyReleaseEvent(QKeyEvent* e);
