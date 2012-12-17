@@ -75,6 +75,10 @@ C_Editor::C_Editor() : m_Editor(NULL)
 	m_AutoUpdate=true;
 
 }
+C_Editor::C_Editor(const QString& openwith) : C_Editor()
+{
+	S_OpenFile(openwith);
+}
 
 void C_Editor::S_OpenColorDialog(QList<C_Vertex*> affectedverts)
 {

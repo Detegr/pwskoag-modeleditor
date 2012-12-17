@@ -274,20 +274,10 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 					if(it->M_Selected())
 					{
 						std::pair<float, float> prevPos=it->M_Pos();
-						if(M_MouseOverVertex(x,y,*it))
-						{
-							emit S_SetPos(
-									*it,
-									M_RoundToPrecision(prevPos.first+(x-lmx), m_PointPrecision),
-									M_RoundToPrecision(prevPos.second+(y-lmy), m_PointPrecision));
-						}
-						else
-						{
-							emit S_SetPos(
-								*it,
-								prevPos.first+(x-lmx),
-								prevPos.second+(y-lmy));
-						}
+						emit S_SetPos(
+							*it,
+							prevPos.first+(x-M_RoundToPrecision(lmx, m_PointPrecision)),
+							prevPos.second+(y-M_RoundToPrecision(lmy, m_PointPrecision)));
 					}
 				}
 			}

@@ -47,4 +47,5 @@ class C_Editor : public QWidget
 		void S_Split();
 	public:
 		C_Editor();
+		C_Editor(const QString& openwith);
 };
