@@ -189,7 +189,6 @@ void C_GLEditor::M_Split()
 		float avgx = (fpos.first+spos.first) / 2;
 		float avgy = (fpos.second+spos.second) / 2;
 
-
 		int pos=0;
 		int i=0;
 		for(C_Polygon::iterator itt=m_ActivePoly->begin(); itt!=m_ActivePoly->end(); ++itt, ++i)
@@ -276,8 +275,8 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 						std::pair<float, float> prevPos=it->M_Pos();
 						emit S_SetPos(
 							*it,
-							prevPos.first+(x-M_RoundToPrecision(lmx, m_PointPrecision)),
-							prevPos.second+(y-M_RoundToPrecision(lmy, m_PointPrecision)));
+							prevPos.first+(x-lmx),
+							prevPos.second+(y-lmy));
 					}
 				}
 			}
@@ -365,7 +364,7 @@ void C_GLEditor::M_Center()
 	}
 	updateGL();
 }
-#include <assert.h>
+
 float C_GLEditor::M_RoundToPrecision(float num, float precision)
 {
 	if(num>0.5f)

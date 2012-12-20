@@ -52,6 +52,7 @@ class C_Editor : public QWidget
 		{
 			m_Save->setVisible(true);
 		}
+		void S_ReverseActivePolygon();
 	signals:
 		void S_SplitPossible(bool b);
 		void S_SaveAs();

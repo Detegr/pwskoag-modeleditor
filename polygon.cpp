@@ -1,5 +1,6 @@
 #include "polygon.h"
 #include <sstream>
+#include <algorithm>
 
 C_Polygon::C_Polygon(QStandardItem* root) :
 	m_Root(root)
@@ -58,4 +59,9 @@ C_Vertex& C_Polygon::M_Last()
 void C_Polygon::M_Delete(unsigned pos)
 {
 	m_Verts.erase(m_Verts.begin()+pos);
+}
+
+void C_Polygon::M_Reverse()
+{
+	std::reverse(m_Verts.begin(), m_Verts.end());
 }

@@ -48,9 +48,15 @@ C_Main::C_Main(QWidget* c) : m_MainWidget(c)
 	QObject::connect(c, SIGNAL(S_SplitPossible(bool)), split, SLOT(setEnabled(bool)));
 	QObject::connect(split, SIGNAL(triggered()), c, SLOT(S_Split()));
 	split->setEnabled(false);
+
+	QAction* reverse=new QAction(tr("&Reverse active polygon"), this);
+	QObject::connect(reverse, SIGNAL(triggered()), c, SLOT(S_ReverseActivePolygon()));
+
 	editbar->addAction(split);
+	editbar->addAction(reverse);
 
 	split->setShortcut(QKeySequence(tr("Ctrl+X")));
+	reverse->setShortcut(QKeySequence(tr("Ctrl+R")));
 
 	bar->addAction(open);
 	bar->addAction(save);

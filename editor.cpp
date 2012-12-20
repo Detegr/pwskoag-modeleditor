@@ -348,3 +348,13 @@ void C_Editor::S_Split()
 {
 	m_Editor->M_Split();
 }
+
+void C_Editor::S_ReverseActivePolygon()
+{
+	m_Editor->m_ActivePoly->M_Reverse();
+	for(C_Polygon::iterator it=m_Editor->m_ActivePoly->begin(); it!=m_Editor->m_ActivePoly->end(); ++it)
+	{
+		std::pair<float, float> pos=it->M_Pos();
+		emit S_SetPos(*it, pos.first, pos.second);
+	}
+}
