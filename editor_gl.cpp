@@ -24,6 +24,9 @@ C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
 	m_ActivePoly=m_Polygons.back();
 	m_PointPrecision=0.01f;
 	m_SplitFirst=m_SplitSecond=NULL;
+
+	m_ViewPortX=0;
+	m_ViewPortY=0;
 }
 C_GLEditor::~C_GLEditor()
 {
@@ -69,7 +72,7 @@ void C_GLEditor::M_PaintPolygon(const C_Polygon& p)
 	{
 		std::pair<float, float> pos=it->M_Pos();
 		qglColor(it->M_Color());
-		glVertex2f(pos.first, pos.second);
+		glVertex2f(m_ViewPortX+pos.first, m_ViewPortY+pos.second);
 	}
 	glEnd();
 }
@@ -89,7 +92,7 @@ void C_GLEditor::M_PaintPoints(const C_Polygon& p)
 		}
 		else qglColor(QColor::fromRgbF(0.4f, 0.4f, 0.4f, 1.0f));
 		std::pair<float, float> pos=it->M_Pos();
-		glVertex3f(pos.first, pos.second, -1.0f);
+		glVertex3f(m_ViewPortX+pos.first, m_ViewPortY+pos.second, -1.0f);
 	}
 	glEnd();
 }
@@ -134,47 +137,52 @@ bool C_GLEditor::M_MouseOverVertex(float x, float y, const C_Vertex& v)
 
 void C_GLEditor::mousePressEvent(QMouseEvent* e)
 {
-	float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f, m_PointPrecision);
-	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f, m_PointPrecision);
-	if(m_Mode==Insert)
+	float xraw=(float)e->pos().x()/(this->width()/2)-1.0f;
+	float yraw=-((float)e->pos().y()/(this->height()/2)-1.0f);
+	float x=M_RoundToPrecision(xraw, m_PointPrecision);
+	float y=M_RoundToPrecision(yraw, m_PointPrecision);
+	if(e->buttons() & Qt::LeftButton)
 	{
-		emit S_MousePressed(m_ActivePoly->M_Root(),x,y,-1);
-		m_Drag=false;
-		for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
+		if(m_Mode==Insert)
 		{
-			it->M_SetSelection(false);
-		}
-		m_ActivePoly->M_Last().M_SetSelection(true);
-	}
-	else
-	{
-		m_Drag=true;
-		for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
-		{
-			if(M_MouseOverVertex(x,y,*it))
+			emit S_MousePressed(m_ActivePoly->M_Root(),x-m_ViewPortX,y-m_ViewPortY,-1);
+			m_Drag=false;
+			for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
 			{
-				m_Drag=false;
-				if(!it->M_Selected())
+				it->M_SetSelection(false);
+			}
+			m_ActivePoly->M_Last().M_SetSelection(true);
+		}
+		else
+		{
+			m_Drag=true;
+			for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
+			{
+				if(M_MouseOverVertex(xraw,yraw,*it))
 				{
-					for(C_Polygon::iterator itt=m_ActivePoly->begin(); itt!=m_ActivePoly->end(); ++itt)
+					m_Drag=false;
+					if(!it->M_Selected())
 					{
-						itt->M_SetSelection(false);
+						for(C_Polygon::iterator itt=m_ActivePoly->begin(); itt!=m_ActivePoly->end(); ++itt)
+						{
+							itt->M_SetSelection(false);
+						}
+						it->M_SetSelection(true);
+						break;
 					}
-					it->M_SetSelection(true);
-					break;
 				}
 			}
-		}
-		if(m_Drag)
-		{
-			for(C_Polygon::iterator itt=m_ActivePoly->begin(); itt!=m_ActivePoly->end(); ++itt)
+			if(m_Drag)
 			{
-				itt->M_SetSelection(false);
+				for(C_Polygon::iterator itt=m_ActivePoly->begin(); itt!=m_ActivePoly->end(); ++itt)
+				{
+					itt->M_SetSelection(false);
+				}
 			}
 		}
 	}
 	m_SplitFirst=m_SplitSecond=NULL;
-	m_LastClick=std::make_pair(x,y);
+	m_LastClick=std::make_pair(xraw,yraw);
 	m_LastMousePos=m_LastClick;
 	updateGL();
 }
@@ -211,14 +219,16 @@ void C_GLEditor::M_Split()
 
 void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 {
-	float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f, m_PointPrecision);
-	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f, m_PointPrecision);
+	float xraw=(float)e->pos().x()/(this->width()/2)-1.0f;
+	float yraw=-((float)e->pos().y()/(this->height()/2)-1.0f);
+	float x=M_RoundToPrecision(xraw, m_PointPrecision);
+	float y=M_RoundToPrecision(yraw, m_PointPrecision);
 	if(e->buttons() & Qt::LeftButton)
 	{
 		if(m_Mode==Insert)
 		{
 			m_Drag=false;
-			emit S_SetPos(m_ActivePoly->M_Last(),x,y);
+			emit S_SetPos(m_ActivePoly->M_Last(),x-m_ViewPortX,y-m_ViewPortY);
 			//m_ActivePoly->M_Last().M_SetPos(x,y);
 		}
 		else
@@ -228,10 +238,10 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 
 			if(m_Drag)
 			{
-				m_DragPoints[0]=std::min(m_LastClick.first, x);
-				m_DragPoints[1]=std::max(m_LastClick.first, x);
-				m_DragPoints[2]=std::min(m_LastClick.second, y);
-				m_DragPoints[3]=std::max(m_LastClick.second, y);
+				m_DragPoints[0]=std::min(m_LastClick.first, xraw);
+				m_DragPoints[1]=std::max(m_LastClick.first, xraw);
+				m_DragPoints[2]=std::min(m_LastClick.second, yraw);
+				m_DragPoints[3]=std::max(m_LastClick.second, yraw);
 
 				int selected=0;
 				int selectedsum=0;
@@ -275,49 +285,60 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 						std::pair<float, float> prevPos=it->M_Pos();
 						emit S_SetPos(
 							*it,
-							prevPos.first+(x-lmx),
-							prevPos.second+(y-lmy));
+							prevPos.first+(x-M_RoundToPrecision(lmx, m_PointPrecision)),
+							prevPos.second+(y-M_RoundToPrecision(lmy, m_PointPrecision)));
 					}
 				}
 			}
 		}
 	}
-	else if(m_Mode==Edit)
+	else
 	{
-		for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
+		if(e->buttons() & Qt::MiddleButton)
 		{
-			if(M_MouseOverVertex(x,y,*it)) it->M_SetHovering(true);
-			else it->M_SetHovering(false);
+			m_ViewPortX-=m_LastMousePos.first - xraw;
+			m_ViewPortY-=m_LastMousePos.second - yraw;
+		}
+		if(m_Mode==Edit)
+		{
+			for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
+			{
+				if(M_MouseOverVertex(xraw,yraw,*it)) it->M_SetHovering(true);
+				else it->M_SetHovering(false);
+			}
 		}
 	}
 	updateGL();
-	m_LastMousePos=std::make_pair(x,y);
+	m_LastMousePos=std::make_pair(xraw,yraw);
 }
 
 void C_GLEditor::mouseReleaseEvent(QMouseEvent* e)
 {
-	float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f, m_PointPrecision);
-	float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f, m_PointPrecision);
-	if(m_Mode==Insert)
+	if(e->buttons() & Qt::LeftButton)
 	{
-		emit S_SetPos(m_ActivePoly->M_Last(),x,y);
-		m_ActivePoly->M_Last().M_SetSelection(false);
-	}
-	else
-	{
-		// Can't remember what this was for...caused some strange problems after m_Drag.
-		/*
-		for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
+		float x=M_RoundToPrecision((float)e->pos().x()/(this->width()/2)-1.0f, m_PointPrecision);
+		float y=-M_RoundToPrecision((float)e->pos().y()/(this->height()/2)-1.0f, m_PointPrecision);
+		if(m_Mode==Insert)
 		{
-			float lmx=m_LastMousePos.first;
-			float lmy=m_LastMousePos.second;
-			if(it->M_Selected())
-			{
-				std::pair<float, float> prevPos=it->M_Pos();
-				emit S_SetPos(*it,prevPos.first+(x-lmx),prevPos.second+(y-lmy));
-			}
+			emit S_SetPos(m_ActivePoly->M_Last(),x-m_ViewPortX,y-m_ViewPortY);
+			m_ActivePoly->M_Last().M_SetSelection(false);
 		}
-		*/
+		else
+		{
+			// Can't remember what this was for...caused some strange problems after m_Drag.
+			/*
+			for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
+			{
+				float lmx=m_LastMousePos.first;
+				float lmy=m_LastMousePos.second;
+				if(it->M_Selected())
+				{
+					std::pair<float, float> prevPos=it->M_Pos();
+					emit S_SetPos(*it,prevPos.first+(x-lmx),prevPos.second+(y-lmy));
+				}
+			}
+			*/
+		}
 	}
 	if(m_Drag)
 	{

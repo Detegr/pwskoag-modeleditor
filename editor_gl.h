@@ -27,6 +27,10 @@ class C_GLEditor : public QGLWidget
 		C_Polygon* m_ActivePoly;
 		Mode m_Mode;
 		DrawMode m_DrawMode;
+
+		float m_ViewPortX;
+		float m_ViewPortY;
+
 		static const unsigned m_GridSize=20;
 		float m_Grid[m_GridSize];
 		std::pair<float, float> m_LastClick;
