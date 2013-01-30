@@ -206,7 +206,7 @@ void C_Editor::S_UpdateList(QStandardItem* i)
 		ss << newdatastr;
 		float newdata;
 		ss >> newdata;
-		if(newdata>=-1.0f && newdata<=1.0f && newdatastr.find(',') == std::string::npos)
+		if(newdatastr.find(',') == std::string::npos)
 		{
 			i->setData(newdata);
 			std::pair<float,float> oldp=m_Editor->m_ActivePoly->M_Vertex(i->row()).M_Pos();
