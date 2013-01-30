@@ -158,7 +158,7 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 			m_Drag=true;
 			for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
 			{
-				if(M_MouseOverVertex(xraw,yraw,*it))
+				if(M_MouseOverVertex(xraw-m_ViewPortX,yraw-m_ViewPortY,*it))
 				{
 					m_Drag=false;
 					if(!it->M_Selected())
@@ -249,7 +249,7 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 				for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it, ++vertexcount)
 				{
 					std::pair<float, float> pos=it->M_Pos();
-					if(M_PointInsideBox(pos.first, pos.second, m_DragPoints[0], m_DragPoints[2], m_DragPoints[1], m_DragPoints[3]))
+					if(M_PointInsideBox(pos.first, pos.second, m_DragPoints[0]-m_ViewPortX, m_DragPoints[2]-m_ViewPortY, m_DragPoints[1]-m_ViewPortX, m_DragPoints[3]-m_ViewPortY))
 					{
 						++selectedsum;
 						it->M_SetSelection(true);
