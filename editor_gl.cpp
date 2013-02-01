@@ -145,7 +145,7 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 	{
 		if(m_Mode==Insert)
 		{
-			emit S_MousePressed(m_ActivePoly->M_Root(),x-m_ViewPortX,y-m_ViewPortY,-1);
+			emit S_MousePressed(m_ActivePoly->M_Root(),x-m_ViewPortX,y-m_ViewPortY,-1,QString(""));
 			m_Drag=false;
 			for(C_Polygon::iterator it=m_ActivePoly->begin(); it!=m_ActivePoly->end(); ++it)
 			{
@@ -210,7 +210,7 @@ void C_GLEditor::M_Split()
 
 		Mode tmp=m_Mode;
 		m_Mode=Insert;
-		emit S_MousePressed(m_ActivePoly->M_Root(),avgx,avgy,pos);
+		emit S_MousePressed(m_ActivePoly->M_Root(),avgx,avgy,pos,QString(""));
 		m_Mode=tmp;
 		updateGL();
 	}

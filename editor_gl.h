@@ -50,7 +50,7 @@ class C_GLEditor : public QGLWidget
 
 	signals:
 		void S_SetPos(C_Vertex&, float x, float y);
-		void S_MousePressed(QStandardItem*, float,float,int);
+		void S_MousePressed(QStandardItem*, float,float,int,const QString&);
 		void S_RequestColorDialog(QList<C_Vertex*>);
 	protected:
 		void initializeGL();

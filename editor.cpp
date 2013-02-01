@@ -59,7 +59,7 @@ void C_Editor::m_Init()
 	vb->setAlignment(Qt::AlignTop);
 
 	m_Editor = new C_GLEditor(this, root);
-	QObject::connect(m_Editor, SIGNAL(S_MousePressed(QStandardItem*, float, float, int)), this, SLOT(S_AddToList(QStandardItem*, float, float, int)));
+	QObject::connect(m_Editor, SIGNAL(S_MousePressed(QStandardItem*, float, float, int, const QString&)), this, SLOT(S_AddToList(QStandardItem*, float, float, int, const QString&)));
 	QObject::connect(m_Editor, SIGNAL(S_SetPos(C_Vertex&, float, float)), this, SLOT(S_SetPos(C_Vertex&, float, float)));
 
 	m_ColorDialog = new QColorDialog(this);
@@ -244,20 +244,27 @@ void C_Editor::S_UpdateList(QStandardItem* i)
 	}
 }
 
-void C_Editor::S_AddToList(QStandardItem* obj, float x, float y, int pos)
+void C_Editor::S_AddToList(QStandardItem* obj, float x, float y, int pos, const QString& data)
 {
 	QString f,s;
-	QString data("");
 	f.setNum(x);
 	s.setNum(y);
 	QStandardItem* ix = new QStandardItem(f);
 	ix->setData(QVariant(x));
 	QStandardItem* iy = new QStandardItem(s);
 	iy->setData(QVariant(y));
-	QStandardItem* id = new QStandardItem(data);
-	id->setData(QVariant(data));
+	QStandardItem* id;
+	if(data.length())
+	{
+		id=new QStandardItem("*");
+	}
+	else id=new QStandardItem("");
 	obj->appendRow(QList<QStandardItem*>() << ix << iy << id);
 	m_Editor->m_ActivePoly->M_Add(x,y,pos);
+	if(data.length())
+	{
+		m_Editor->m_ActivePoly->M_Last().M_SetData(data);
+	}
 }
 
 void C_Editor::S_SetInsertMode()
@@ -281,7 +288,10 @@ void C_Editor::S_OpenFile(const QString& path)
 	std::stringstream ss;
 	ss.precision(3);
 	m_Model->clear();
-	m_Model->setColumnCount(2);
+	m_Model->setColumnCount(3);
+	m_List->setColumnWidth(0, 60);
+	m_List->setColumnWidth(1, 40);
+	m_List->setColumnWidth(2, 10);
 	for(std::vector<C_Polygon*>::iterator it=m_Editor->m_Polygons.begin(); it!=m_Editor->m_Polygons.end(); ++it)
 	{
 		delete *it;
@@ -291,10 +301,11 @@ void C_Editor::S_OpenFile(const QString& path)
 	float x=0; float y=0;
 	unsigned i=0;
 	QStandardItem* newroot=NULL;
+	QString data;
 	for(std::vector<std::string>::iterator it=strs.begin(); it!=strs.end(); ++it, ++i)
 	{
+		data=QString();
 		if(it->find('>')==0)
-
 		{
 			newroot=S_NewPolygon(it->substr(8, std::string::npos));
 			i=0;
@@ -306,8 +317,15 @@ void C_Editor::S_OpenFile(const QString& path)
 		ss << *it;
 		ss >> y;
 		ss.clear();
+		if(it != strs.end())
+		{
+			if(++it->find('<')==0)
+			{
+				data = QString(it->substr(8, std::string::npos).c_str());
+			} else it--;
+		}
 		assert(newroot!=NULL);
-		S_AddToList(newroot,x,y,-1);
+		S_AddToList(newroot,x,y,-1,data);
 	}
 	m_Editor->updateGL();
 	m_EditedFile=QDir(path);
@@ -325,6 +343,10 @@ void C_Editor::S_SaveFile(const QString& path)
 		for(C_Polygon::const_iterator pi=(*it)->begin(); pi!=(*it)->end(); ++pi)
 		{
 			out << pi->M_Pos().first << "\n" << pi->M_Pos().second << "\n";
+			if(pi->M_GetData().length())
+			{
+				out << "< DATA: " << pi->M_GetData().toStdString() << "\n";
+			}
 		}
 	}
 	out.close();

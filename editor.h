@@ -36,7 +36,7 @@ class C_Editor : public QWidget
 		void S_SetPos(C_Vertex&, float, float);
 		QStandardItem* S_NewPolygon(const std::string& name="Object");
 		void S_SetActivePoly(const QModelIndex&);
-		void S_AddToList(QStandardItem*, float, float, int);
+		void S_AddToList(QStandardItem*, float, float, int, const QString&);
 		void S_UpdateList(QStandardItem* i);
 		void S_SetInsertMode();
 		void S_SetEditMode();
