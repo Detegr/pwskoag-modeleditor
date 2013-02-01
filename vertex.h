@@ -8,6 +8,7 @@ class C_Vertex
 	private:
 		C_Polygon* m_Parent;
 		float x,y;
+		QString m_Data;
 		QColor m_Color;
 		bool m_Selected;
 		bool m_Hovering;
@@ -21,5 +22,7 @@ class C_Vertex
 		void M_SetHovering(bool h) { m_Hovering=h; }
 		bool M_Hovering() const { return m_Hovering; }
 		void M_SetPos(float x, float y);
+		void M_SetData(const QString& data);
+		QString M_GetData() const;
 		std::pair<float, float> M_Pos() const;
 };

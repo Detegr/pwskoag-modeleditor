@@ -2,6 +2,7 @@
 
 #include <QtGui/QtGui>
 #include "editor_gl.h"
+#include "dataeditor.h"
 
 class C_Editor : public QWidget
 {
@@ -20,6 +21,7 @@ class C_Editor : public QWidget
 		QPushButton* m_Insert;
 		QPushButton* m_Edit;
 		QColorDialog* m_ColorDialog;
+		C_DataEditor* m_DataEditor;
 		QSplitter* m_Splitter;
 		QTreeView* m_List;
 		QList<C_Vertex*> m_VertsToColor;
@@ -53,6 +55,8 @@ class C_Editor : public QWidget
 			m_Save->setVisible(true);
 		}
 		void S_ReverseActivePolygon();
+		void S_OpenDataDialog(const QModelIndex&);
+		void S_SetData();
 	signals:
 		void S_SplitPossible(bool b);
 		void S_SaveAs();

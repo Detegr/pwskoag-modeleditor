@@ -67,11 +67,20 @@ void C_Editor::m_Init()
 	QObject::connect(m_Editor, SIGNAL(S_RequestColorDialog(QList<C_Vertex*>)), this, SLOT(S_OpenColorDialog(QList<C_Vertex*>)));
 	QObject::connect(m_ColorDialog, SIGNAL(colorSelected(const QColor&)), this, SLOT(S_ColorChanged(const QColor&)));
 
+	m_DataEditor = new C_DataEditor(this);
+
 	m_New->setFixedWidth(SIDEBAR_WIDTH);
 	m_Center->setFixedWidth(SIDEBAR_WIDTH);
 
 	m_List = new QTreeView(this);
 	QObject::connect(m_List, SIGNAL(clicked(const QModelIndex&)), this, SLOT(S_SetActivePoly(const QModelIndex&)));
+	QObject::connect(
+			m_List,
+			SIGNAL(doubleClicked(const QModelIndex&)),
+			this,
+			SLOT(S_OpenDataDialog(const QModelIndex&)));
+	QObject::connect(m_DataEditor, SIGNAL(accepted()), this, SLOT(S_SetData()));
+
 	m_Splitter->addWidget(m_List);
 	m_List->setHeaderHidden(true);
 	m_List->setModel(m_Model);
@@ -217,7 +226,7 @@ void C_Editor::S_UpdateList(QStandardItem* i)
 			{
 				m_Editor->m_ActivePoly->M_Vertex(i->row()).M_SetPos(newdata, oldp.second);
 			}
-			else
+			else if(i->column()==1)
 			{
 				m_Editor->m_ActivePoly->M_Vertex(i->row()).M_SetPos(oldp.first, newdata);
 			}
@@ -363,4 +372,23 @@ void C_Editor::S_ReverseActivePolygon()
 		std::pair<float, float> pos=it->M_Pos();
 		emit S_SetPos(*it, pos.first, pos.second);
 	}
+}
+
+void C_Editor::S_OpenDataDialog(const QModelIndex& i)
+{
+	if(i.column() == 2) // Data column
+	{
+		m_DataEditor->setData(i, m_Editor->m_ActivePoly->M_Vertex(i.row()).M_GetData());
+		m_DataEditor->setVisible(true);
+	}
+}
+
+void C_Editor::S_SetData()
+{
+	QString data=m_DataEditor->getData();
+	m_Editor->m_ActivePoly->M_Vertex(m_DataEditor->getModelIndex().row()).M_SetData(data);
+	QStandardItem* item=m_Model->itemFromIndex(m_DataEditor->getModelIndex());
+	if(data.length()) item->setText("*");
+	else item->setText("");
+	S_UpdateList(item);
 }

@@ -19,3 +19,13 @@ std::pair<float, float> C_Vertex::M_Pos() const
 {
 	return std::make_pair(x,y);
 }
+
+void C_Vertex::M_SetData(const QString& data)
+{
+	m_Data=data;
+}
+
+QString C_Vertex::M_GetData() const
+{
+	return m_Data;
+}
