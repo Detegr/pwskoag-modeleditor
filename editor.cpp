@@ -4,6 +4,8 @@
 #include "filereader.h"
 #include <assert.h>
 
+#define SIDEBAR_WIDTH 140
+
 C_Editor::C_Editor() : m_Editor(NULL)
 {
 	m_Init();
@@ -43,14 +45,14 @@ void C_Editor::m_Init()
 	editmode->addWidget(m_Insert);
 	editmode->addWidget(m_Edit);
 	frame->setLayout(editmode);
-	frame->setFixedWidth(150);
+	frame->setFixedWidth(SIDEBAR_WIDTH-10);
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	QVBoxLayout *vb = new QVBoxLayout();
 	vb->addWidget(frame);
 	m_Splitter->setOrientation(Qt::Vertical);
 	m_Model = new QStandardItemModel(this);
 	QObject::connect(m_Model, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(S_UpdateList(QStandardItem*)));
-	m_Model->setColumnCount(2);
+	m_Model->setColumnCount(3);
 	QStandardItem* root = new QStandardItem("Object");
 
 	m_Model->appendRow(root);
@@ -65,18 +67,19 @@ void C_Editor::m_Init()
 	QObject::connect(m_Editor, SIGNAL(S_RequestColorDialog(QList<C_Vertex*>)), this, SLOT(S_OpenColorDialog(QList<C_Vertex*>)));
 	QObject::connect(m_ColorDialog, SIGNAL(colorSelected(const QColor&)), this, SLOT(S_ColorChanged(const QColor&)));
 
-	m_New->setFixedWidth(160);
-	m_Center->setFixedWidth(160);
+	m_New->setFixedWidth(SIDEBAR_WIDTH);
+	m_Center->setFixedWidth(SIDEBAR_WIDTH);
 
 	m_List = new QTreeView(this);
 	QObject::connect(m_List, SIGNAL(clicked(const QModelIndex&)), this, SLOT(S_SetActivePoly(const QModelIndex&)));
 	m_Splitter->addWidget(m_List);
 	m_List->setHeaderHidden(true);
 	m_List->setModel(m_Model);
-	m_List->setFixedWidth(160);
-	m_List->setIndentation(12);
-	m_List->setColumnWidth(0, 80);
-	m_List->setColumnWidth(1, 20);
+	m_List->setFixedWidth(SIDEBAR_WIDTH);
+	m_List->setIndentation(10);
+	m_List->setColumnWidth(0, 60);
+	m_List->setColumnWidth(1, 40);
+	m_List->setColumnWidth(2, 10);
 	m_List->setFirstColumnSpanned(root->row(), m_Model->indexFromItem(root->parent()), true);
 	m_List->expandAll();
 
@@ -235,13 +238,16 @@ void C_Editor::S_UpdateList(QStandardItem* i)
 void C_Editor::S_AddToList(QStandardItem* obj, float x, float y, int pos)
 {
 	QString f,s;
+	QString data("");
 	f.setNum(x);
 	s.setNum(y);
 	QStandardItem* ix = new QStandardItem(f);
 	ix->setData(QVariant(x));
 	QStandardItem* iy = new QStandardItem(s);
 	iy->setData(QVariant(y));
-	obj->appendRow(QList<QStandardItem*>() << ix << iy);
+	QStandardItem* id = new QStandardItem(data);
+	id->setData(QVariant(data));
+	obj->appendRow(QList<QStandardItem*>() << ix << iy << id);
 	m_Editor->m_ActivePoly->M_Add(x,y,pos);
 }
 
