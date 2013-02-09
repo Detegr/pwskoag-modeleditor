@@ -180,6 +180,7 @@ void C_GLEditor::mousePressEvent(QMouseEvent* e)
 				}
 			}
 		}
+		//emit S_SelectionChanged();
 	}
 	m_SplitFirst=m_SplitSecond=NULL;
 	m_LastClick=std::make_pair(xraw,yraw);
@@ -291,6 +292,7 @@ void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 				}
 			}
 		}
+		emit S_SelectionChanged();
 	}
 	else
 	{
@@ -345,6 +347,7 @@ void C_GLEditor::mouseReleaseEvent(QMouseEvent* e)
 		for(unsigned i=0; i<4; ++i) m_DragPoints[i]=0.0f;
 		updateGL();
 	}
+	emit S_SelectionChanged();
 	emit ((C_Editor*)parentWidget())->S_SplitPossible((m_SplitFirst&&m_SplitSecond));
 }
 

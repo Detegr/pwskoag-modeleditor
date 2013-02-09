@@ -101,6 +101,5 @@ int main(int argc, char **argv)
 	}
 	else w = new C_Main(new C_Editor);
 	int ret=app.exec();
-	delete w;
 	return ret;
 }

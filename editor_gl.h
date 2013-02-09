@@ -52,6 +52,8 @@ class C_GLEditor : public QGLWidget
 		void S_SetPos(C_Vertex&, float x, float y);
 		void S_MousePressed(QStandardItem*, float,float,int,const QString&);
 		void S_RequestColorDialog(QList<C_Vertex*>);
+		void S_SelectionChanged();
+		void S_ClearSelection();
 	protected:
 		void initializeGL();
 		void paintGL();

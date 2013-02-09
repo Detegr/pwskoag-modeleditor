@@ -31,4 +31,5 @@ class C_Polygon
 		C_Vertex& M_Last();
 		std::pair<QStandardItem*, QStandardItem*> M_GetItems(const C_Vertex& v) const;
 		void M_Reverse();
+		int M_Size() const { return m_Verts.size(); }
 };

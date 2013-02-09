@@ -24,6 +24,7 @@ class C_Editor : public QWidget
 		C_DataEditor* m_DataEditor;
 		QSplitter* m_Splitter;
 		QTreeView* m_List;
+		QItemSelectionModel* m_Selection;
 		QList<C_Vertex*> m_VertsToColor;
 		QShortcut* m_Delete;
 		bool m_AutoUpdate;
@@ -35,7 +36,7 @@ class C_Editor : public QWidget
 		void S_DeletePoint();
 		void S_SetPos(C_Vertex&, float, float);
 		QStandardItem* S_NewPolygon(const std::string& name="Object");
-		void S_SetActivePoly(const QModelIndex&);
+		void S_SelectionChanged(const QItemSelection& s, const QItemSelection& ds);
 		void S_AddToList(QStandardItem*, float, float, int, const QString&);
 		void S_UpdateList(QStandardItem* i);
 		void S_SetInsertMode();
@@ -57,6 +58,8 @@ class C_Editor : public QWidget
 		void S_ReverseActivePolygon();
 		void S_OpenDataDialog(const QModelIndex&);
 		void S_SetData();
+		void S_UpdateEditorSelection();
+		void S_ClearSelection();
 	signals:
 		void S_SplitPossible(bool b);
 		void S_SaveAs();

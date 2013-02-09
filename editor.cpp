@@ -61,6 +61,8 @@ void C_Editor::m_Init()
 	m_Editor = new C_GLEditor(this, root);
 	QObject::connect(m_Editor, SIGNAL(S_MousePressed(QStandardItem*, float, float, int, const QString&)), this, SLOT(S_AddToList(QStandardItem*, float, float, int, const QString&)));
 	QObject::connect(m_Editor, SIGNAL(S_SetPos(C_Vertex&, float, float)), this, SLOT(S_SetPos(C_Vertex&, float, float)));
+	QObject::connect(m_Editor, SIGNAL(S_SelectionChanged()), this, SLOT(S_UpdateEditorSelection()));
+	QObject::connect(m_Editor, SIGNAL(S_ClearSelection()), this, SLOT(S_ClearSelection()));
 
 	m_ColorDialog = new QColorDialog(this);
 	m_ColorDialog->hide();
@@ -73,7 +75,8 @@ void C_Editor::m_Init()
 	m_Center->setFixedWidth(SIDEBAR_WIDTH);
 
 	m_List = new QTreeView(this);
-	QObject::connect(m_List, SIGNAL(clicked(const QModelIndex&)), this, SLOT(S_SetActivePoly(const QModelIndex&)));
+	m_Selection = new QItemSelectionModel(m_Model);
+	QObject::connect(m_Selection, SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(S_SelectionChanged(const QItemSelection&, const QItemSelection&)));
 	QObject::connect(
 			m_List,
 			SIGNAL(doubleClicked(const QModelIndex&)),
@@ -84,6 +87,7 @@ void C_Editor::m_Init()
 	m_Splitter->addWidget(m_List);
 	m_List->setHeaderHidden(true);
 	m_List->setModel(m_Model);
+	m_List->setSelectionModel(m_Selection);
 	m_List->setFixedWidth(SIDEBAR_WIDTH);
 	m_List->setIndentation(10);
 	m_List->setColumnWidth(0, 60);
@@ -200,11 +204,28 @@ QStandardItem* C_Editor::S_NewPolygon(const std::string& name)
 	return newroot;
 }
 
-void C_Editor::S_SetActivePoly(const QModelIndex& index)
+void C_Editor::S_SelectionChanged(const QItemSelection& s, const QItemSelection& ds)
 {
-	QStandardItem* i=m_Model->itemFromIndex(index);
-	m_SelectedItem=i;
-	m_Editor->m_ActivePoly=m_Editor->m_Polygons[i->parent()?i->parent()->row():i->row()];
+	for(int i=0; i<ds.indexes().size(); ++i)
+	{
+		QStandardItem* item=m_Model->itemFromIndex(ds.indexes()[i]);
+		int j=0;
+		for(C_Polygon::iterator it=m_Editor->m_ActivePoly->begin(); it!=m_Editor->m_ActivePoly->end(); ++it, ++j)
+		{
+			if(j==item->row()) it->M_SetSelection(false);
+		}
+	}
+	for(int i=0; i<s.indexes().size(); ++i)
+	{
+		QStandardItem* item=m_Model->itemFromIndex(s.indexes()[i]);
+		m_SelectedItem=item;
+		m_Editor->m_ActivePoly=m_Editor->m_Polygons[item->parent()?item->parent()->row():item->row()]; // TODO: Useless to do every time
+		int j=0;
+		for(C_Polygon::iterator it=m_Editor->m_ActivePoly->begin(); it!=m_Editor->m_ActivePoly->end(); ++it, ++j)
+		{
+			if(j==item->row()) it->M_SetSelection(true);
+		}
+	}
 	m_Editor->updateGL();
 }
 
@@ -415,4 +436,25 @@ void C_Editor::S_SetData()
 	if(data.length()) item->setText("*");
 	else item->setText("");
 	m_List->setEditTriggers(QAbstractItemView::DoubleClicked);
+}
+
+void C_Editor::S_ClearSelection()
+{
+	m_Selection->clearSelection();
+}
+
+void C_Editor::S_UpdateEditorSelection()
+{
+	int i=0;
+	for(C_Polygon::iterator it=m_Editor->m_ActivePoly->begin(); it!=m_Editor->m_ActivePoly->end(); ++it, ++i)
+	{
+		if(it->M_Selected())
+		{
+			m_Selection->select(m_Model->index(i, 0, m_Model->indexFromItem(m_Editor->m_ActivePoly->M_Root())), QItemSelectionModel::Select|QItemSelectionModel::Rows);
+		}
+		else
+		{
+			m_Selection->select(m_Model->index(i, 0, m_Model->indexFromItem(m_Editor->m_ActivePoly->M_Root())), QItemSelectionModel::Deselect|QItemSelectionModel::Rows);
+		}
+	}
 }
