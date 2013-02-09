@@ -401,6 +401,7 @@ void C_Editor::S_OpenDataDialog(const QModelIndex& i)
 {
 	if(i.column() == 2) // Data column
 	{
+		m_List->setEditTriggers(QAbstractItemView::NoEditTriggers);
 		m_DataEditor->setData(i, m_Editor->m_ActivePoly->M_Vertex(i.row()).M_GetData());
 		m_DataEditor->setVisible(true);
 	}
@@ -413,5 +414,5 @@ void C_Editor::S_SetData()
 	QStandardItem* item=m_Model->itemFromIndex(m_DataEditor->getModelIndex());
 	if(data.length()) item->setText("*");
 	else item->setText("");
-	S_UpdateList(item);
+	m_List->setEditTriggers(QAbstractItemView::DoubleClicked);
 }
