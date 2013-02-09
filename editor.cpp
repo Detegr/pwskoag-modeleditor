@@ -317,9 +317,10 @@ void C_Editor::S_OpenFile(const QString& path)
 		ss << *it;
 		ss >> y;
 		ss.clear();
-		if(it != strs.end())
+		if((it+1) != strs.end())
 		{
-			if(++it->find('<')==0)
+			++it;
+			if(it->find('<')==0)
 			{
 				data = QString(it->substr(8, std::string::npos).c_str());
 			} else it--;
