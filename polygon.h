@@ -32,4 +32,5 @@ class C_Polygon
 		std::pair<QStandardItem*, QStandardItem*> M_GetItems(const C_Vertex& v) const;
 		void M_Reverse();
 		int M_Size() const { return m_Verts.size(); }
+		void M_Replace(int index, const std::vector<C_Vertex>& vec);
 };

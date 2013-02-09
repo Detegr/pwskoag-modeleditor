@@ -65,3 +65,9 @@ void C_Polygon::M_Reverse()
 {
 	std::reverse(m_Verts.begin(), m_Verts.end());
 }
+
+void C_Polygon::M_Replace(int index, const std::vector<C_Vertex>& vec)
+{
+	m_Verts.erase(m_Verts.begin()+index);
+	m_Verts.insert(m_Verts.begin()+index, vec.begin(), vec.end());
+}
