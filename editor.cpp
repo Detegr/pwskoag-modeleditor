@@ -284,7 +284,7 @@ void C_Editor::S_AddToList(QStandardItem* obj, float x, float y, int pos, const 
 	m_Editor->m_ActivePoly->M_Add(x,y,pos);
 	if(data.length())
 	{
-		m_Editor->m_ActivePoly->M_Last().M_SetData(data);
+		m_Editor->m_ActivePoly->M_Last().M_SetStrData(data);
 	}
 }
 
@@ -365,9 +365,9 @@ void C_Editor::S_SaveFile(const QString& path)
 		for(C_Polygon::const_iterator pi=(*it)->begin(); pi!=(*it)->end(); ++pi)
 		{
 			out << pi->M_Pos().first << "\n" << pi->M_Pos().second << "\n";
-			if(pi->M_GetData().length())
+			if(pi->M_GetStrData().length())
 			{
-				out << "< DATA: " << pi->M_GetData().toStdString() << "\n";
+				out << "< DATA: " << pi->M_GetStrData().toStdString() << "\n";
 			}
 		}
 	}
@@ -423,7 +423,8 @@ void C_Editor::S_OpenDataDialog(const QModelIndex& i)
 	if(i.column() == 2) // Data column
 	{
 		m_List->setEditTriggers(QAbstractItemView::NoEditTriggers);
-		m_DataEditor->setData(i, m_Editor->m_ActivePoly->M_Vertex(i.row()).M_GetData());
+		m_DataEditor->setData(i, m_Editor->m_ActivePoly->M_Vertex(i.row()).M_GetStrData());
+		m_DataEditor->m_BezierButton->setChecked(m_Editor->m_ActivePoly->M_Vertex(i.row()).M_GetIsBezier());
 		m_DataEditor->setVisible(true);
 	}
 }
@@ -431,7 +432,9 @@ void C_Editor::S_OpenDataDialog(const QModelIndex& i)
 void C_Editor::S_SetData()
 {
 	QString data=m_DataEditor->getData();
-	m_Editor->m_ActivePoly->M_Vertex(m_DataEditor->getModelIndex().row()).M_SetData(data);
+	bool b=m_DataEditor->getIsBezier();
+	m_Editor->m_ActivePoly->M_Vertex(m_DataEditor->getModelIndex().row()).M_SetStrData(data);
+	m_Editor->m_ActivePoly->M_Vertex(m_DataEditor->getModelIndex().row()).M_SetIsBezier(b);
 	QStandardItem* item=m_Model->itemFromIndex(m_DataEditor->getModelIndex());
 	if(data.length()) item->setText("*");
 	else item->setText("");

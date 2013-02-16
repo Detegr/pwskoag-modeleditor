@@ -13,6 +13,10 @@ class C_Polygon
 		std::vector<C_Vertex> m_Verts;
 		QColor m_BaseColor;
 
+		static std::pair<float, float> M_Middlepoint(const std::pair<float, float>& a, const std::pair<float, float>& b);
+		static std::pair<float, float> M_Splitpoint(const std::pair<float,float>& a, const std::pair<float, float>& b, float t);
+		static std::pair<float,float> M_CalculateSplinePoint(const std::pair<float, float>& a, const std::pair<float, float>& b, const std::pair<float, float>& c, float t);
+
 	public:
 		typedef std::vector<C_Vertex>::iterator iterator;
 		typedef std::vector<C_Vertex>::const_iterator const_iterator;
@@ -33,4 +37,6 @@ class C_Polygon
 		void M_Reverse();
 		int M_Size() const { return m_Verts.size(); }
 		void M_Replace(int index, const std::vector<C_Vertex>& vec);
+
+		static std::vector<std::pair<float, float> > M_CalculateSplinePoints(const std::pair<float, float>& a, const std::pair<float, float>& b, const std::pair<float, float>& c, int iterations);
 };

@@ -70,9 +70,21 @@ void C_GLEditor::M_PaintPolygon(const C_Polygon& p)
 	glBegin(m_DrawMode);
 	for(C_Polygon::const_iterator it=p.begin(); it!=p.end(); ++it)
 	{
-		std::pair<float, float> pos=it->M_Pos();
 		qglColor(it->M_Color());
-		glVertex2f(m_ViewPortX+pos.first, m_ViewPortY+pos.second);
+		if(it->M_GetIsBezier() && (it+1) != p.end() && (it+2) != p.end())
+		{
+			std::vector<std::pair<float, float> > bezierpoints=C_Polygon::M_CalculateSplinePoints(it->M_Pos(), (it+1)->M_Pos(), (it+2)->M_Pos(), 8);
+			it+=2;
+			for(std::vector<std::pair<float, float> >::iterator itt=bezierpoints.begin(); itt!=bezierpoints.end(); ++itt)
+			{
+				glVertex2f(m_ViewPortX+itt->first, m_ViewPortY+itt->second);
+			}
+		}
+		else
+		{
+			std::pair<float, float> pos=it->M_Pos();
+			glVertex2f(m_ViewPortX+pos.first, m_ViewPortY+pos.second);
+		}
 	}
 	glEnd();
 }

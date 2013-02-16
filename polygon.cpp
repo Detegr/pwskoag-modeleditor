@@ -71,3 +71,46 @@ void C_Polygon::M_Replace(int index, const std::vector<C_Vertex>& vec)
 	m_Verts.erase(m_Verts.begin()+index);
 	m_Verts.insert(m_Verts.begin()+index, vec.begin(), vec.end());
 }
+
+/*
+std::pair<float, float> C_Polygon::M_Middlepoint(const std::pair<float, float>& a, const std::pair<float, float>& b)
+{
+	return std::make_pair(0.5f * (a.first + b.first), 0.5f * (a.second + b.second));
+}
+ 
+std::pair<float, float> C_Polygon::M_Splitpoint(const std::pair<float,float>& a, const std::pair<float, float>& b, float t)
+{
+	return std::make_pair(((1.0f-t) * a.first) + (t * b.first), ((1.0f-t) * a.second) + (t * b.second));
+}
+ 
+std::pair<float,float> C_Polygon::M_CalculateSplinePoint(const std::pair<float, float>& a, const std::pair<float, float>& b, const std::pair<float, float>& c, float t)
+{
+	return M_Splitpoint(M_Splitpoint(a, b, t), M_Splitpoint(b, c, t), t);
+}
+std::vector<std::pair<float, float> > C_Polygon::M_CalculateSplinePoints(const std::pair<float, float>& a, const std::pair<float, float>& b, const std::pair<float, float>& c, int iterations)
+{
+	std::vector<std::pair<float, float> > out;
+	out.push_back(M_Middlepoint(a,b));
+	std::pair<float, float> d = M_Middlepoint(c,b);
+    for (int i=1; i<iterations-1; i++)
+    {
+            out.push_back(M_CalculateSplinePoint(a, b, d, (float) i / (float)(iterations - 1)));
+    }
+	out.push_back(b);
+
+	return out;
+}
+*/
+std::vector<std::pair<float, float> > C_Polygon::M_CalculateSplinePoints(const std::pair<float, float>& a, const std::pair<float, float>& b, const std::pair<float, float>& c, int iterations)
+{
+	std::vector<std::pair<float, float> > ret;
+
+	for(int i=0; i<=100; i+=100/iterations)
+	{
+		double t = i*0.01;
+		float x=(1-t)*(1-t)*a.first + 2 * (1-t) * t * b.first + (t*t) * c.first;
+		float y=(1-t)*(1-t)*a.second + 2 * (1-t) * t * b.second + (t*t) * c.second;
+		ret.push_back(std::make_pair(x,y));
+	}
+	return ret;
+}
