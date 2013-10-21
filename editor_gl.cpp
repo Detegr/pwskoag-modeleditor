@@ -27,6 +27,7 @@ C_GLEditor::C_GLEditor(QWidget* parent, QStandardItem* root) :
 
 	m_ViewPortX=0;
 	m_ViewPortY=0;
+	m_ZoomLevel=1.0;
 }
 C_GLEditor::~C_GLEditor()
 {
@@ -72,7 +73,7 @@ void C_GLEditor::M_PaintPolygon(const C_Polygon& p)
 	{
 		std::pair<float, float> pos=it->M_Pos();
 		qglColor(it->M_Color());
-		glVertex2f(m_ViewPortX+pos.first, m_ViewPortY+pos.second);
+		glVertex2f((m_ViewPortX+pos.first)*m_ZoomLevel, (m_ViewPortY+pos.second)*m_ZoomLevel);
 	}
 	glEnd();
 }
@@ -92,7 +93,7 @@ void C_GLEditor::M_PaintPoints(const C_Polygon& p)
 		}
 		else qglColor(QColor::fromRgbF(0.4f, 0.4f, 0.4f, 1.0f));
 		std::pair<float, float> pos=it->M_Pos();
-		glVertex3f(m_ViewPortX+pos.first, m_ViewPortY+pos.second, -1.0f);
+		glVertex3f((m_ViewPortX+pos.first)*m_ZoomLevel, (m_ViewPortY+pos.second)*m_ZoomLevel, -1.0f);
 	}
 	glEnd();
 }
@@ -100,18 +101,18 @@ void C_GLEditor::M_PaintDrag()
 {
 	glColor4f(0.6f, 0.8f, 1.0f, 0.4f);
 	glBegin(GL_TRIANGLE_STRIP);
-	glVertex3f(m_DragPoints[0], m_DragPoints[2], -1.0f);
-	glVertex3f(m_DragPoints[1], m_DragPoints[2], -1.0f);
-	glVertex3f(m_DragPoints[0], m_DragPoints[3], -1.0f);
-	glVertex3f(m_DragPoints[1], m_DragPoints[3], -1.0f);
+	glVertex3f(m_DragPoints[0]*m_ZoomLevel, m_DragPoints[2]*m_ZoomLevel, -1.0f);
+	glVertex3f(m_DragPoints[1]*m_ZoomLevel, m_DragPoints[2]*m_ZoomLevel, -1.0f);
+	glVertex3f(m_DragPoints[0]*m_ZoomLevel, m_DragPoints[3]*m_ZoomLevel, -1.0f);
+	glVertex3f(m_DragPoints[1]*m_ZoomLevel, m_DragPoints[3]*m_ZoomLevel, -1.0f);
 	glEnd();
 	glColor4f(0.0f, 0.2f, 1.0f, 0.8f);
 	glBegin(GL_LINE_STRIP);
-	glVertex3f(m_DragPoints[0], m_DragPoints[2], -1.0f);
-	glVertex3f(m_DragPoints[1], m_DragPoints[2], -1.0f);
-	glVertex3f(m_DragPoints[1], m_DragPoints[3], -1.0f);
-	glVertex3f(m_DragPoints[0], m_DragPoints[3], -1.0f);
-	glVertex3f(m_DragPoints[0], m_DragPoints[2], -1.0f);
+	glVertex3f(m_DragPoints[0]*m_ZoomLevel, m_DragPoints[2]*m_ZoomLevel, -1.0f);
+	glVertex3f(m_DragPoints[1]*m_ZoomLevel, m_DragPoints[2]*m_ZoomLevel, -1.0f);
+	glVertex3f(m_DragPoints[1]*m_ZoomLevel, m_DragPoints[3]*m_ZoomLevel, -1.0f);
+	glVertex3f(m_DragPoints[0]*m_ZoomLevel, m_DragPoints[3]*m_ZoomLevel, -1.0f);
+	glVertex3f(m_DragPoints[0]*m_ZoomLevel, m_DragPoints[2]*m_ZoomLevel, -1.0f);
 	glEnd();
 }
 
@@ -137,8 +138,8 @@ bool C_GLEditor::M_MouseOverVertex(float x, float y, const C_Vertex& v)
 
 void C_GLEditor::mousePressEvent(QMouseEvent* e)
 {
-	float xraw=(float)e->pos().x()/(this->width()/2)-1.0f;
-	float yraw=-((float)e->pos().y()/(this->height()/2)-1.0f);
+	float xraw=((float)e->pos().x()/(this->width()/2)-1.0f)/m_ZoomLevel;
+	float yraw=-((float)e->pos().y()/(this->height()/2)-1.0f)/m_ZoomLevel;
 	float x=M_RoundToPrecision(xraw, m_PointPrecision);
 	float y=M_RoundToPrecision(yraw, m_PointPrecision);
 	if(e->buttons() & Qt::LeftButton)
@@ -220,8 +221,8 @@ void C_GLEditor::M_Split()
 
 void C_GLEditor::mouseMoveEvent(QMouseEvent* e)
 {
-	float xraw=(float)e->pos().x()/(this->width()/2)-1.0f;
-	float yraw=-((float)e->pos().y()/(this->height()/2)-1.0f);
+	float xraw=((float)e->pos().x()/(this->width()/2)-1.0f)/m_ZoomLevel;
+	float yraw=-((float)e->pos().y()/(this->height()/2)-1.0f)/m_ZoomLevel;
 	float x=M_RoundToPrecision(xraw, m_PointPrecision);
 	float y=M_RoundToPrecision(yraw, m_PointPrecision);
 	if(e->buttons() & Qt::LeftButton)
@@ -359,6 +360,13 @@ void C_GLEditor::mouseDoubleClickEvent(QMouseEvent*)
 		if(it->M_Selected()) ql << &(*it);
 	}
 	if(ql.size()) emit(S_RequestColorDialog(ql));
+}
+
+void C_GLEditor::wheelEvent(QWheelEvent* e)
+{
+	m_ZoomLevel+=(e->delta()*0.001f)*m_ZoomLevel;
+	if(m_ZoomLevel<0.001) m_ZoomLevel=0.001;
+	updateGL();
 }
 
 bool C_GLEditor::M_PointInsideBox(float px, float py, float x1, float y1, float x2, float y2)

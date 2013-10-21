@@ -45,6 +45,8 @@ class C_GLEditor : public QGLWidget
 
 		float m_PointPrecision;
 
+		float m_ZoomLevel;
+
 		C_Vertex* m_SplitFirst;
 		C_Vertex* m_SplitSecond;
 
@@ -62,6 +64,7 @@ class C_GLEditor : public QGLWidget
 		void mouseReleaseEvent(QMouseEvent* e);
 		void mouseMoveEvent(QMouseEvent* e);
 		void mouseDoubleClickEvent(QMouseEvent* e);
+		void wheelEvent(QWheelEvent* e);
 		bool M_MouseOverVertex(float, float, const C_Vertex& v);
 	public:
 		C_GLEditor(QWidget* parent, QStandardItem* root);
